@@ -1,0 +1,270 @@
+2025-05-29 01:16:05,223 - Client-1 - INFO - Using device: cpu
+2025-05-29 01:16:05,257 - Client-1 - INFO - Client 1 initialized with device: cpu
+2025-05-29 01:16:05,258 - Client-1 - INFO - Client 1 loading dataset...
+2025-05-29 01:16:13,162 - Client-1 - INFO - Client 1 loaded 1000 training samples and 200 test samples
+2025-05-29 01:16:16,293 - Client-1 - INFO - Client 1 connecting to server at 127.0.0.1:8080
+2025-05-29 01:16:16,294 - flwr - WARNING - DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated. 
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below: 
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+        
+2025-05-29 01:16:16,333 - flwr - DEBUG - Opened insecure gRPC connection (no certificates were passed)
+2025-05-29 01:16:16,357 - flwr - DEBUG - ChannelConnectivity.IDLE
+2025-05-29 01:16:16,365 - flwr - DEBUG - ChannelConnectivity.CONNECTING
+2025-05-29 01:16:16,371 - flwr - DEBUG - ChannelConnectivity.READY
+2025-05-29 01:16:16,375 - flwr - INFO - 
+2025-05-29 01:16:16,376 - flwr - INFO - Received: get_parameters message 014291f0-be6a-4275-8f89-418a406f4302
+2025-05-29 01:16:16,384 - flwr - INFO - Sent reply
+2025-05-29 01:16:19,094 - Client-2 - INFO - Using device: cpu
+2025-05-29 01:16:19,097 - Client-2 - INFO - Client 2 initialized with device: cpu
+2025-05-29 01:16:19,097 - Client-2 - INFO - Client 2 loading dataset...
+2025-05-29 01:16:19,859 - Client-2 - INFO - Client 2 loaded 1000 training samples and 200 test samples
+2025-05-29 01:16:21,409 - Client-3 - INFO - Using device: cpu
+2025-05-29 01:16:21,412 - Client-3 - INFO - Client 3 initialized with device: cpu
+2025-05-29 01:16:21,412 - Client-3 - INFO - Client 3 loading dataset...
+2025-05-29 01:16:21,737 - Client-2 - INFO - Client 2 connecting to server at 127.0.0.1:8080
+2025-05-29 01:16:21,737 - flwr - WARNING - DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated. 
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below: 
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+        
+2025-05-29 01:16:21,749 - flwr - DEBUG - Opened insecure gRPC connection (no certificates were passed)
+2025-05-29 01:16:21,756 - flwr - DEBUG - ChannelConnectivity.IDLE
+2025-05-29 01:16:21,758 - flwr - DEBUG - ChannelConnectivity.READY
+2025-05-29 01:16:21,766 - flwr - INFO - 
+2025-05-29 01:16:21,769 - flwr - INFO - Received: train message b133a1aa-95cf-4df8-b8e0-3455f9429214
+2025-05-29 01:16:21,773 - Client-1 - INFO - Client 1 starting local training
+2025-05-29 01:16:21,781 - flwr - INFO - 
+2025-05-29 01:16:21,782 - flwr - INFO - Received: train message 097ac697-9fca-498d-a89e-5351999a31f9
+2025-05-29 01:16:21,786 - Client-2 - INFO - Client 2 starting local training
+2025-05-29 01:16:22,128 - Client-2 - INFO - Client 2 - Epoch 1/1: Loss: 2.2662, Accuracy: 0.1400
+2025-05-29 01:16:22,128 - Client-1 - INFO - Client 1 - Epoch 1/1: Loss: 2.2555, Accuracy: 0.1670
+2025-05-29 01:16:22,132 - flwr - INFO - Sent reply
+2025-05-29 01:16:22,133 - flwr - INFO - Sent reply
+2025-05-29 01:16:22,145 - flwr - INFO - 
+2025-05-29 01:16:22,146 - flwr - INFO - Received: evaluate message 99dde902-c885-4471-9ed6-9ce60d2c88e9
+2025-05-29 01:16:22,147 - Client-2 - INFO - Client 2 evaluating model
+2025-05-29 01:16:22,148 - flwr - INFO - 
+2025-05-29 01:16:22,149 - flwr - INFO - Received: evaluate message 454d8026-8e3a-4b22-b98a-8baa3c2c7a66
+2025-05-29 01:16:22,151 - Client-1 - INFO - Client 1 evaluating model
+2025-05-29 01:16:22,164 - Client-2 - INFO - Client 2 evaluation - Loss: 2.3011, Accuracy: 0.1000
+2025-05-29 01:16:22,164 - flwr - INFO - Sent reply
+2025-05-29 01:16:22,165 - Client-1 - INFO - Client 1 evaluation - Loss: 2.3057, Accuracy: 0.0750
+2025-05-29 01:16:22,166 - flwr - INFO - Sent reply
+2025-05-29 01:16:22,174 - flwr - INFO - 
+2025-05-29 01:16:22,175 - flwr - INFO - Received: train message ff9f6b2a-7d7d-4c59-b3a7-e4b3894c0150
+2025-05-29 01:16:22,177 - Client-1 - INFO - Client 1 starting local training
+2025-05-29 01:16:22,177 - flwr - INFO - 
+2025-05-29 01:16:22,178 - flwr - INFO - Received: train message d33cd3e0-b2c1-4790-acc0-631dd515a715
+2025-05-29 01:16:22,180 - Client-2 - INFO - Client 2 starting local training
+2025-05-29 01:16:22,340 - Client-3 - INFO - Client 3 loaded 1000 training samples and 200 test samples
+2025-05-29 01:16:22,395 - Client-1 - INFO - Client 1 - Epoch 1/1: Loss: 1.9511, Accuracy: 0.4670
+2025-05-29 01:16:22,399 - flwr - INFO - Sent reply
+2025-05-29 01:16:22,404 - Client-2 - INFO - Client 2 - Epoch 1/1: Loss: 1.9736, Accuracy: 0.4900
+2025-05-29 01:16:22,408 - flwr - INFO - Sent reply
+2025-05-29 01:16:22,421 - flwr - INFO - 
+2025-05-29 01:16:22,422 - flwr - INFO - Received: evaluate message 83474b41-1aaf-4662-9b83-adede7d658b9
+2025-05-29 01:16:22,423 - Client-2 - INFO - Client 2 evaluating model
+2025-05-29 01:16:22,424 - flwr - INFO - 
+2025-05-29 01:16:22,424 - flwr - INFO - Received: evaluate message 874a44ea-17b4-461e-9365-bf87f5cf2feb
+2025-05-29 01:16:22,428 - Client-1 - INFO - Client 1 evaluating model
+2025-05-29 01:16:22,443 - Client-2 - INFO - Client 2 evaluation - Loss: 2.3195, Accuracy: 0.1100
+2025-05-29 01:16:22,443 - flwr - INFO - Sent reply
+2025-05-29 01:16:22,445 - Client-1 - INFO - Client 1 evaluation - Loss: 2.3434, Accuracy: 0.0700
+2025-05-29 01:16:22,446 - flwr - INFO - Sent reply
+2025-05-29 01:16:22,458 - flwr - INFO - 
+2025-05-29 01:16:22,458 - flwr - INFO - 
+2025-05-29 01:16:22,458 - flwr - INFO - Received: train message 340428da-f90e-456a-a87c-47a0a327ff83
+2025-05-29 01:16:22,460 - flwr - INFO - Received: train message e773ec81-e817-4272-a964-f7741fc7ee73
+2025-05-29 01:16:22,460 - Client-1 - INFO - Client 1 starting local training
+2025-05-29 01:16:22,461 - Client-2 - INFO - Client 2 starting local training
+2025-05-29 01:16:22,719 - Client-2 - INFO - Client 2 - Epoch 1/1: Loss: 1.4876, Accuracy: 0.6410
+2025-05-29 01:16:22,719 - Client-1 - INFO - Client 1 - Epoch 1/1: Loss: 1.4452, Accuracy: 0.6570
+2025-05-29 01:16:22,722 - flwr - INFO - Sent reply
+2025-05-29 01:16:22,723 - flwr - INFO - Sent reply
+2025-05-29 01:16:22,736 - flwr - INFO - 
+2025-05-29 01:16:22,737 - flwr - INFO - Received: evaluate message f5309e91-c236-442e-a49c-5d688a7056f8
+2025-05-29 01:16:22,738 - Client-2 - INFO - Client 2 evaluating model
+2025-05-29 01:16:22,740 - flwr - INFO - 
+2025-05-29 01:16:22,741 - flwr - INFO - Received: evaluate message b842738c-b89c-4dfd-9903-8cce9fa5ec3f
+2025-05-29 01:16:22,742 - Client-1 - INFO - Client 1 evaluating model
+2025-05-29 01:16:22,748 - Client-2 - INFO - Client 2 evaluation - Loss: 2.4859, Accuracy: 0.0950
+2025-05-29 01:16:22,748 - flwr - INFO - Sent reply
+2025-05-29 01:16:22,756 - Client-1 - INFO - Client 1 evaluation - Loss: 2.5741, Accuracy: 0.0550
+2025-05-29 01:16:22,757 - flwr - INFO - Sent reply
+2025-05-29 01:16:22,765 - flwr - INFO - 
+2025-05-29 01:16:22,765 - flwr - INFO - Received: train message 112d8c77-0967-47ad-9841-fab874ff363e
+2025-05-29 01:16:22,771 - Client-2 - INFO - Client 2 starting local training
+2025-05-29 01:16:22,769 - flwr - INFO - 
+2025-05-29 01:16:22,774 - flwr - INFO - Received: train message dbd99ab0-bd13-4d11-9edb-e34852676217
+2025-05-29 01:16:22,776 - Client-1 - INFO - Client 1 starting local training
+2025-05-29 01:16:23,006 - Client-2 - INFO - Client 2 - Epoch 1/1: Loss: 0.8642, Accuracy: 0.8340
+2025-05-29 01:16:23,011 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,013 - Client-1 - INFO - Client 1 - Epoch 1/1: Loss: 0.8035, Accuracy: 0.8350
+2025-05-29 01:16:23,017 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,030 - flwr - INFO - 
+2025-05-29 01:16:23,030 - flwr - INFO - Received: evaluate message 83f2b8d8-7b0c-4f44-beb6-575252fd2b47
+2025-05-29 01:16:23,032 - Client-1 - INFO - Client 1 evaluating model
+2025-05-29 01:16:23,033 - flwr - INFO - 
+2025-05-29 01:16:23,034 - flwr - INFO - Received: evaluate message d0d80c56-67a2-4aa0-b775-7a6bbc3cefff
+2025-05-29 01:16:23,036 - Client-2 - INFO - Client 2 evaluating model
+2025-05-29 01:16:23,044 - Client-1 - INFO - Client 1 evaluation - Loss: 3.0846, Accuracy: 0.0750
+2025-05-29 01:16:23,045 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,049 - Client-2 - INFO - Client 2 evaluation - Loss: 2.8851, Accuracy: 0.0700
+2025-05-29 01:16:23,050 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,060 - flwr - INFO - 
+2025-05-29 01:16:23,060 - flwr - INFO - Received: train message 8b913339-6e3a-4979-8891-0338005dcdbc
+2025-05-29 01:16:23,061 - Client-1 - INFO - Client 1 starting local training
+2025-05-29 01:16:23,062 - flwr - INFO - 
+2025-05-29 01:16:23,063 - flwr - INFO - Received: train message 5f9f2935-4a9a-4923-bae9-27c416ca4437
+2025-05-29 01:16:23,064 - Client-2 - INFO - Client 2 starting local training
+2025-05-29 01:16:23,253 - Client-1 - INFO - Client 1 - Epoch 1/1: Loss: 0.3535, Accuracy: 0.9560
+2025-05-29 01:16:23,256 - Client-2 - INFO - Client 2 - Epoch 1/1: Loss: 0.4012, Accuracy: 0.9340
+2025-05-29 01:16:23,256 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,258 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,290 - flwr - INFO - 
+2025-05-29 01:16:23,291 - flwr - INFO - Received: evaluate message 33b1840d-b3fa-43a6-bc26-f21442e351ee
+2025-05-29 01:16:23,293 - Client-2 - INFO - Client 2 evaluating model
+2025-05-29 01:16:23,294 - flwr - INFO - 
+2025-05-29 01:16:23,294 - flwr - INFO - Received: evaluate message 851c0714-c1a5-4a06-90cc-b33e8e87d0b0
+2025-05-29 01:16:23,296 - Client-1 - INFO - Client 1 evaluating model
+2025-05-29 01:16:23,304 - Client-2 - INFO - Client 2 evaluation - Loss: 3.4391, Accuracy: 0.0800
+2025-05-29 01:16:23,305 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,306 - Client-1 - INFO - Client 1 evaluation - Loss: 3.6854, Accuracy: 0.0850
+2025-05-29 01:16:23,307 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,315 - flwr - INFO - 
+2025-05-29 01:16:23,317 - flwr - INFO - Received: train message 036cc90d-02c2-41bc-9681-dd484726b0a2
+2025-05-29 01:16:23,319 - Client-1 - INFO - Client 1 starting local training
+2025-05-29 01:16:23,333 - flwr - INFO - 
+2025-05-29 01:16:23,336 - flwr - INFO - Received: train message 3c423747-fd24-4c93-abf4-f0f52822ae67
+2025-05-29 01:16:23,340 - Client-2 - INFO - Client 2 starting local training
+2025-05-29 01:16:23,592 - Client-1 - INFO - Client 1 - Epoch 1/1: Loss: 0.1476, Accuracy: 0.9920
+2025-05-29 01:16:23,596 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,612 - Client-2 - INFO - Client 2 - Epoch 1/1: Loss: 0.1514, Accuracy: 0.9950
+2025-05-29 01:16:23,615 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,629 - flwr - INFO - 
+2025-05-29 01:16:23,630 - flwr - INFO - Received: evaluate message 4a60dffe-74d9-4d2b-9625-4627c474105f
+2025-05-29 01:16:23,632 - Client-2 - INFO - Client 2 evaluating model
+2025-05-29 01:16:23,635 - flwr - INFO - 
+2025-05-29 01:16:23,635 - flwr - INFO - Received: evaluate message 6eac6e5d-dedb-4d2a-a13a-ba6486c49551
+2025-05-29 01:16:23,637 - Client-1 - INFO - Client 1 evaluating model
+2025-05-29 01:16:23,645 - Client-2 - INFO - Client 2 evaluation - Loss: 3.9261, Accuracy: 0.0850
+2025-05-29 01:16:23,646 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,650 - Client-1 - INFO - Client 1 evaluation - Loss: 4.2212, Accuracy: 0.0700
+2025-05-29 01:16:23,651 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,661 - flwr - INFO - 
+2025-05-29 01:16:23,662 - flwr - INFO - Received: train message 207f883e-a23f-4817-9ff7-af91ff410e38
+2025-05-29 01:16:23,664 - Client-2 - INFO - Client 2 starting local training
+2025-05-29 01:16:23,665 - flwr - INFO - 
+2025-05-29 01:16:23,666 - flwr - INFO - Received: train message d9788bea-5aa4-4a08-8ed7-5e57c801303a
+2025-05-29 01:16:23,668 - Client-1 - INFO - Client 1 starting local training
+2025-05-29 01:16:23,877 - Client-2 - INFO - Client 2 - Epoch 1/1: Loss: 0.0652, Accuracy: 1.0000
+2025-05-29 01:16:23,879 - Client-1 - INFO - Client 1 - Epoch 1/1: Loss: 0.0610, Accuracy: 1.0000
+2025-05-29 01:16:23,883 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,897 - flwr - INFO - 
+2025-05-29 01:16:23,898 - flwr - INFO - Received: evaluate message 11ffea26-b04c-434b-b25f-97dc9d374b89
+2025-05-29 01:16:23,900 - Client-1 - INFO - Client 1 evaluating model
+2025-05-29 01:16:23,904 - flwr - INFO - 
+2025-05-29 01:16:23,905 - flwr - INFO - Received: evaluate message 82f5c3fb-ad0f-481c-bf85-833794ad26a6
+2025-05-29 01:16:23,907 - Client-2 - INFO - Client 2 evaluating model
+2025-05-29 01:16:23,919 - Client-1 - INFO - Client 1 evaluation - Loss: 4.6192, Accuracy: 0.0900
+2025-05-29 01:16:23,920 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,923 - Client-2 - INFO - Client 2 evaluation - Loss: 4.3029, Accuracy: 0.0650
+2025-05-29 01:16:23,924 - flwr - INFO - Sent reply
+2025-05-29 01:16:23,932 - flwr - INFO - 
+2025-05-29 01:16:23,933 - flwr - INFO - Received: train message e43b97b1-b8e2-4a58-9acd-4a29fc4620c9
+2025-05-29 01:16:23,935 - Client-2 - INFO - Client 2 starting local training
+2025-05-29 01:16:23,937 - flwr - INFO - 
+2025-05-29 01:16:23,938 - flwr - INFO - Received: train message 628e1bd2-eec6-459c-b97f-58d8c32a0d6d
+2025-05-29 01:16:23,940 - Client-1 - INFO - Client 1 starting local training
+2025-05-29 01:16:24,159 - Client-1 - INFO - Client 1 - Epoch 1/1: Loss: 0.0323, Accuracy: 1.0000
+2025-05-29 01:16:24,161 - Client-2 - INFO - Client 2 - Epoch 1/1: Loss: 0.0348, Accuracy: 1.0000
+2025-05-29 01:16:24,163 - flwr - INFO - Sent reply
+2025-05-29 01:16:24,164 - flwr - INFO - Sent reply
+2025-05-29 01:16:24,188 - flwr - INFO - 
+2025-05-29 01:16:24,188 - flwr - INFO - Received: evaluate message 84ece72a-f1e7-4e68-b336-35e7cedc2c74
+2025-05-29 01:16:24,190 - Client-2 - INFO - Client 2 evaluating model
+2025-05-29 01:16:24,198 - flwr - INFO - 
+2025-05-29 01:16:24,198 - flwr - INFO - Received: evaluate message ddac3e4c-3050-4031-ae87-012839e25259
+2025-05-29 01:16:24,200 - Client-1 - INFO - Client 1 evaluating model
+2025-05-29 01:16:24,204 - Client-2 - INFO - Client 2 evaluation - Loss: 4.5418, Accuracy: 0.0750
+2025-05-29 01:16:24,205 - flwr - INFO - Sent reply
+2025-05-29 01:16:24,213 - Client-1 - INFO - Client 1 evaluation - Loss: 4.9243, Accuracy: 0.0800
+2025-05-29 01:16:24,214 - flwr - INFO - Sent reply
+2025-05-29 01:16:24,224 - flwr - INFO - 
+2025-05-29 01:16:24,225 - flwr - INFO - Received: train message 40331f34-3a27-4f5b-922b-52b783741230
+2025-05-29 01:16:24,226 - Client-1 - INFO - Client 1 starting local training
+2025-05-29 01:16:24,230 - flwr - INFO - 
+2025-05-29 01:16:24,232 - flwr - INFO - Received: train message 477b73e6-dbda-4f84-ab83-bc19153ea66e
+2025-05-29 01:16:24,234 - Client-2 - INFO - Client 2 starting local training
+2025-05-29 01:16:24,441 - Client-2 - INFO - Client 2 - Epoch 1/1: Loss: 0.0227, Accuracy: 1.0000
+2025-05-29 01:16:24,441 - Client-1 - INFO - Client 1 - Epoch 1/1: Loss: 0.0209, Accuracy: 1.0000
+2025-05-29 01:16:24,445 - flwr - INFO - Sent reply
+2025-05-29 01:16:24,446 - flwr - INFO - Sent reply
+2025-05-29 01:16:24,461 - flwr - INFO - 
+2025-05-29 01:16:24,462 - flwr - INFO - Received: evaluate message cf8c26fe-fdfd-4c5d-bc4d-d3041794d967
+2025-05-29 01:16:24,463 - Client-1 - INFO - Client 1 evaluating model
+2025-05-29 01:16:24,466 - flwr - INFO - 
+2025-05-29 01:16:24,467 - flwr - INFO - Received: evaluate message 76e7695d-d06c-4f7c-a5f2-c4408a6df92f
+2025-05-29 01:16:24,470 - Client-2 - INFO - Client 2 evaluating model
+2025-05-29 01:16:24,478 - Client-1 - INFO - Client 1 evaluation - Loss: 5.1178, Accuracy: 0.0750
+2025-05-29 01:16:24,479 - flwr - INFO - Sent reply
+2025-05-29 01:16:24,482 - Client-2 - INFO - Client 2 evaluation - Loss: 4.7477, Accuracy: 0.0650
+2025-05-29 01:16:24,483 - flwr - INFO - Sent reply
+2025-05-29 01:16:24,492 - flwr - INFO - 
+2025-05-29 01:16:24,492 - flwr - INFO - Received: train message bff275e8-70db-4ab5-986e-ccf98caa1d76
+2025-05-29 01:16:24,494 - Client-2 - INFO - Client 2 starting local training
+2025-05-29 01:16:24,495 - flwr - INFO - 
+2025-05-29 01:16:24,496 - flwr - INFO - Received: train message 8f9406d8-cf9e-4c40-8574-29721829e841
+2025-05-29 01:16:24,498 - Client-1 - INFO - Client 1 starting local training
+2025-05-29 01:16:24,703 - Client-2 - INFO - Client 2 - Epoch 1/1: Loss: 0.0162, Accuracy: 1.0000
+2025-05-29 01:16:24,706 - flwr - INFO - Sent reply
+2025-05-29 01:16:24,712 - Client-1 - INFO - Client 1 - Epoch 1/1: Loss: 0.0147, Accuracy: 1.0000
+2025-05-29 01:16:24,716 - flwr - INFO - Sent reply
+2025-05-29 01:16:24,737 - flwr - INFO - 
+2025-05-29 01:16:24,738 - flwr - INFO - Received: evaluate message 3f64466d-fc51-47a9-8b2a-044f420b64b6
+2025-05-29 01:16:24,739 - Client-2 - INFO - Client 2 evaluating model
+2025-05-29 01:16:24,741 - flwr - INFO - 
+2025-05-29 01:16:24,741 - flwr - INFO - Received: evaluate message 1de4d91e-b0fe-4478-83f6-f285b7983171
+2025-05-29 01:16:24,743 - Client-1 - INFO - Client 1 evaluating model
+2025-05-29 01:16:24,753 - Client-2 - INFO - Client 2 evaluation - Loss: 4.9116, Accuracy: 0.0650
+2025-05-29 01:16:24,754 - flwr - INFO - Sent reply
+2025-05-29 01:16:24,758 - Client-1 - INFO - Client 1 evaluation - Loss: 5.2980, Accuracy: 0.0800
+2025-05-29 01:16:24,759 - flwr - INFO - Sent reply
+2025-05-29 01:16:24,769 - flwr - INFO - 
+2025-05-29 01:16:24,770 - flwr - INFO - Received: reconnect message 56993ab1-8e08-44b1-9a58-1723092e8ec7
+2025-05-29 01:16:24,770 - flwr - INFO - 
+2025-05-29 01:16:24,770 - flwr - INFO - Received: reconnect message 5a3b98bd-47c1-44ee-bd70-b1e9308d924a
+2025-05-29 01:16:25,129 - flwr - DEBUG - gRPC channel closed
+2025-05-29 01:16:25,130 - flwr - DEBUG - gRPC channel closed
+2025-05-29 01:16:25,131 - flwr - INFO - Disconnect and shut down
+2025-05-29 01:16:25,132 - flwr - INFO - Disconnect and shut down
+2025-05-29 01:16:25,487 - Client-3 - INFO - Client 3 connecting to server at 127.0.0.1:8080
+2025-05-29 01:16:25,488 - flwr - WARNING - DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated. 
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below: 
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+        
+2025-05-29 01:16:25,503 - flwr - DEBUG - Opened insecure gRPC connection (no certificates were passed)
+2025-05-29 01:16:25,511 - flwr - DEBUG - ChannelConnectivity.IDLE
+2025-05-29 01:16:25,511 - flwr - DEBUG - ChannelConnectivity.CONNECTING
+2025-05-29 01:16:27,553 - flwr - DEBUG - ChannelConnectivity.TRANSIENT_FAILURE
+2025-05-29 01:16:27,773 - flwr - DEBUG - gRPC channel closed
