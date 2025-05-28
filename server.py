@@ -1,5 +1,6 @@
 import os
 import torch
+import torch.nn as nn
 import logging
 import numpy as np
 from typing import Dict, List, Tuple, Optional
@@ -26,19 +27,31 @@ logger = logging.getLogger("Server")
 os.makedirs("SavedGlobalModel", exist_ok=True)
 
 
-class NeuralNetwork(torch.nn.Module):
-    def __init__(self, input_dim=784, hidden_dim=128, output_dim=10):
-        super(NeuralNetwork, self).__init__()
-        self.layer_1 = torch.nn.Linear(input_dim, hidden_dim)
-        self.layer_2 = torch.nn.Linear(hidden_dim, hidden_dim)
-        self.layer_3 = torch.nn.Linear(hidden_dim, output_dim)
-        self.relu = torch.nn.ReLU()
+# Model definition according to the specified architecture
+class FlModel(nn.Module):
+    def __init__(self, input_size=115, num_classes=10):
+        super(FlModel, self).__init__()
+        self.model = nn.Sequential(
+            nn.Linear(input_size, 256),  # First hidden layer
+            nn.BatchNorm1d(256),  # Batch normalization
+            nn.ReLU(),  # Activation
+            nn.Dropout(0.3),  # Dropout for regularization
+
+            nn.Linear(256, 128),  # Second hidden layer
+            nn.BatchNorm1d(128),  # Batch normalization
+            nn.ReLU(),  # Activation
+            nn.Dropout(0.3),  # Dropout for regularization
+
+            nn.Linear(128, 64),  # Third hidden layer
+            nn.BatchNorm1d(64),  # Batch normalization
+            nn.ReLU(),  # Activation
+            nn.Dropout(0.3),  # Dropout for regularization
+
+            nn.Linear(64, num_classes)  # Output layer
+        )
 
     def forward(self, x):
-        x = self.relu(self.layer_1(x))
-        x = self.relu(self.layer_2(x))
-        x = self.layer_3(x)
-        return x
+        return self.model(x)
 
 
 class SaveModelStrategy(FedAvg):
@@ -70,10 +83,12 @@ class SaveModelStrategy(FedAvg):
             logger.info(f"Round {server_round}: Global model parameters updated")
 
             # Save checkpoint after each round
-            if server_round % 5 == 0:
+            if server_round % 5 == 0 or server_round == 1:  # Save after first round too
                 save_parameters_to_model(
                     self.final_parameters,
-                    f"SavedGlobalModel/model_round_{server_round}.pth"
+                    f"SavedGlobalModel/model_round_{server_round}.pth",
+                    input_size=115,  # Using default input size
+                    num_classes=10  # Using default number of classes
                 )
                 logger.info(f"Round {server_round}: Saved checkpoint to model_round_{server_round}.pth")
 
@@ -117,13 +132,14 @@ def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     return weighted_metrics
 
 
-def save_parameters_to_model(parameters: Parameters, filename: str) -> None:
+def save_parameters_to_model(parameters: Parameters, filename: str, input_size=115, num_classes=10) -> None:
     """Save Flower parameters to PyTorch model."""
-    model = NeuralNetwork()
+    model = FlModel(input_size, num_classes)
     params_dict = zip(model.state_dict().keys(), parameters_to_ndarrays(parameters))
     state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
     model.load_state_dict(state_dict, strict=True)
     torch.save(model.state_dict(), filename)
+    logger.info(f"Model saved to {filename}")
 
 
 def get_model_parameters(model: torch.nn.Module) -> NDArrays:
@@ -132,12 +148,17 @@ def get_model_parameters(model: torch.nn.Module) -> NDArrays:
 
 
 def main():
+    # Define initial model
+    model = FlModel()
+    initial_parameters = get_model_parameters(model)
+
     # Define strategy
     strategy = SaveModelStrategy(
         evaluate_metrics_aggregation_fn=weighted_average,
         min_available_clients=2,
         min_fit_clients=2,
         min_evaluate_clients=2,
+        initial_parameters=fl.common.ndarrays_to_parameters(initial_parameters),
     )
 
     # Define server configuration
@@ -156,7 +177,10 @@ def main():
 
     # After training is complete, save the final model
     if strategy.final_parameters is not None:
-        save_parameters_to_model(strategy.final_parameters, "SavedGlobalModel/final_model.pth")
+        save_parameters_to_model(
+            strategy.final_parameters,
+            "SavedGlobalModel/final_model.pth"
+        )
         logger.info("Final model saved to SavedGlobalModel/final_model.pth")
     else:
         logger.error("No model parameters available to save")
