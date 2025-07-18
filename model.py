@@ -1,9 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 class MalwareNetSmall(nn.Module):
 
@@ -73,4 +70,42 @@ class MalwareNetSmall(nn.Module):
         # Final classification layer
         x = self.output(x)
         return x
+
+class NBaIoTMLP(nn.Module):
+    """
+    Multi-layer perceptron for N-BaIoT dataset classification
+
+    Implements a neural network with:
+    - Configurable number of hidden layers
+    - Configurable number of neurons per layer
+    - ReLU activations
+    - Batch normalization for faster, more stable training
+    - Dropout for regularization
+    - Softmax output for multi-class classification (apply externally during inference)
+    """
+    def __init__(self, input_dim, num_classes, hidden_layers=3, neurons_per_layer=21, dropout_rate=0.3):
+        super(NBaIoTMLP, self).__init__()
+
+        layers = []
+        # Input layer
+        layers.append(nn.Linear(input_dim, neurons_per_layer))
+        layers.append(nn.BatchNorm1d(neurons_per_layer))
+        layers.append(nn.ReLU())
+        layers.append(nn.Dropout(dropout_rate))
+
+        # Hidden layers
+        for _ in range(hidden_layers - 1):
+            layers.append(nn.Linear(neurons_per_layer, neurons_per_layer))
+            layers.append(nn.BatchNorm1d(neurons_per_layer))
+            layers.append(nn.ReLU())
+            layers.append(nn.Dropout(dropout_rate))
+
+        # Output layer
+        layers.append(nn.Linear(neurons_per_layer, num_classes))
+
+        self.layers = nn.Sequential(*layers)
+
+    def forward(self, x):
+        logits = self.layers(x)
+        return logits  # Return raw logits (softmax handled by CrossEntropyLoss)
 

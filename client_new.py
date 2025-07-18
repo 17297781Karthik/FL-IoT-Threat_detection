@@ -15,7 +15,7 @@ from flwr.common import NDArrays, FitIns, EvaluateIns, FitRes, EvaluateRes, Para
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from torch.utils.data import TensorDataset, DataLoader
-from model import NBaIoTMLP  # Import the NBaIoTMLP model
+from model import NBaIoTMLP
 
 # Configure logging
 logging.basicConfig(
@@ -75,7 +75,8 @@ class IoTClient(fl.client.NumPyClient):
         
         # Initialize model parameters based on loaded data
         self.num_classes = len(SELECTED_CLASSES)  # 5 classes from the notebook
-          # Initialize model using the NBaIoTMLP from the notebook
+        
+        # Initialize model using the NBaIoTMLP from the notebook
         self.model = NBaIoTMLP(
             input_dim=self.input_size, 
             num_classes=self.num_classes,
@@ -91,7 +92,8 @@ class IoTClient(fl.client.NumPyClient):
         self.criterion = torch.nn.CrossEntropyLoss()
         self.optimizer = torch.optim.Adam(
             self.model.parameters(), 
-            lr=LEARNING_RATE,        )
+            lr=LEARNING_RATE
+        )
         
         # Learning rate scheduler matching the notebook
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
@@ -100,7 +102,9 @@ class IoTClient(fl.client.NumPyClient):
             factor=0.5, 
             patience=3, 
             verbose=True
-        )def load_selected_data(self):
+        )
+
+    def load_selected_data(self):
         """
         Load and preprocess data from the N-BaIoT dataset for this client's device,
         focusing only on selected classes from the notebook.
@@ -174,7 +178,7 @@ class IoTClient(fl.client.NumPyClient):
         else:
             self.logger.warning(f"No data was loaded for client {self.client_id}!")
             return None
-
+    
     def preprocess_data(self, data):
         """
         Preprocess the dataset by selecting features and standardizing,
@@ -234,7 +238,7 @@ class IoTClient(fl.client.NumPyClient):
         self.logger.info(f"Testing data shape: {X_test.shape}")
         
         return X_train, X_test, y_train, y_test, valid_features
-    
+        
     def load_data(self):
         """
         Load client-specific dataset based on client ID.
@@ -245,248 +249,175 @@ class IoTClient(fl.client.NumPyClient):
             
             # Load selected data for this client
             client_data = self.load_selected_data()
-              # Check if data was loaded successfully
+            
+            # Check if data was loaded successfully
             if client_data is None or client_data.empty:
                 self.logger.error(f"No data loaded for client {self.client_id}")
                 raise FileNotFoundError(f"No data loaded for client {self.client_id}")
             
             # Preprocess data
             X_train, X_test, y_train, y_test, selected_features = self.preprocess_data(client_data)
-                    
-                    # Remove any non-feature columns if they exist
-                    if 'label' in df.columns:
-                        df = df.drop('label', axis=1)
-                    
-                    # Store the input size for the model
-                    if len(all_data) == 0:
-                        self.input_size = df.shape[1]
-                        self.logger.info(f"Setting input size to {self.input_size}")
-                        
-                    # Add data and labels
-                    all_data.append(df.values)
-                    all_labels.extend([attack_type] * len(df))
-                    
-                except Exception as e:
-                    self.logger.error(f"Error processing file {file_path}: {e}")
             
-            if not all_data:
-                self.logger.error("No data could be loaded")
-                raise ValueError("No data could be loaded")
-              # Combine all data
-            X = np.vstack(all_data)
-            y = np.array(all_labels)
-            
-            self.logger.info(f"Combined data shape: {X.shape}, labels shape: {y.shape}")
-            
-            # Sample only 30% of the data for faster processing while maintaining representativeness
-            # Use stratified sampling to maintain class distribution
-            _, X_sampled, _, y_sampled = train_test_split(
-                X, y, test_size=0.3, random_state=42, stratify=y
-            )
-            
-            self.logger.info(f"Sampled 30% of data. New shape: {X_sampled.shape}, labels shape: {y_sampled.shape}")
-            
-            # Use the sampled data for further processing
-            X = X_sampled
-            y = y_sampled
-            
-            # Normalize features
-            scaler = StandardScaler()
-            X = scaler.fit_transform(X)
-            
-            # Split into train and test sets
-            X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.2, random_state=42, stratify=y
-            )
-            
-            # Handle class imbalance
-            class_counts = np.bincount(y_train)
-            class_weights = 1.0 / np.array(class_counts)
-            weights = class_weights[y_train]
-            weights = weights / weights.sum() * len(weights)
-            sampler = torch.utils.data.WeightedRandomSampler(
-                weights=weights,
-                num_samples=len(weights),
-                replacement=True
-            )
+            # Record the input size for model initialization
+            input_size = len(selected_features) if selected_features else 25  # Default to 25 features
             
             # Convert to PyTorch tensors
             X_train_tensor = torch.FloatTensor(X_train)
             y_train_tensor = torch.LongTensor(y_train)
             X_test_tensor = torch.FloatTensor(X_test)
             y_test_tensor = torch.LongTensor(y_test)
-              # Create data loaders with larger batch sizes for faster training
+            
+            # Create datasets
             train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
             test_dataset = TensorDataset(X_test_tensor, y_test_tensor)
             
-            trainloader = DataLoader(train_dataset, batch_size=256, sampler=sampler)
-            testloader = DataLoader(test_dataset, batch_size=512)
+            # Create dataloaders
+            train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+            test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
             
-            # Recreate model with correct input size
-            self.model = NBaIoTMLP(input_size=self.input_size, num_classes=self.num_classes).to(self.device)
+            self.logger.info(f"Number of batches in train_loader: {len(train_loader)}")
+            self.logger.info(f"Number of batches in test_loader: {len(test_loader)}")
             
-            self.logger.info(
-                f"Client {self.client_id} loaded {len(train_dataset)} training samples and {len(test_dataset)} test samples"
-            )
-            self.logger.info(f"Data has {self.input_size} features and {self.num_classes} classes")
-            
-            return trainloader, testloader
+            return train_loader, test_loader, input_size
             
         except Exception as e:
-            self.logger.error(f"Error loading data for client {self.client_id}: {e}")
+            self.logger.error(f"Error loading data: {str(e)}")
             raise
 
-    def get_parameters(self, config) -> List[np.ndarray]:
+    def get_parameters(self, config) -> NDArrays:
         """Get model parameters as a list of NumPy arrays."""
-        self.logger.debug(f"Client {self.client_id} getting model parameters")
+        self.logger.info("Getting parameters from the local model...")
+        # Return model parameters as a list of NumPy ndarrays
         return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
-
-    def set_parameters(self, parameters: List[np.ndarray]) -> None:
+        
+    def set_parameters(self, parameters: NDArrays) -> None:
         """Set model parameters from a list of NumPy arrays."""
-        self.logger.debug(f"Client {self.client_id} setting model parameters")
+        self.logger.info("Updating local model with global parameters...")
         params_dict = zip(self.model.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         self.model.load_state_dict(state_dict, strict=True)
 
-    def fit(self, parameters: List[np.ndarray], config: Dict[str, str]) -> Tuple[List[np.ndarray], int, Dict]:
+    def fit(self, parameters: NDArrays, config: Dict[str, fl.common.Scalar]) -> Tuple[NDArrays, int, Dict]:
         """Train the model on the local dataset."""
-        self.logger.info(f"Client {self.client_id} starting local training")
-
-        # Update local model with global parameters
-        self.set_parameters(parameters)        # Get training config from server
-        epochs = 1  # Slightly more epochs for better accuracy with less data
+        self.set_parameters(parameters)
         
-        # Mixed precision for faster training if available
-        scaler = torch.cuda.amp.GradScaler() if self.device.type == 'cuda' else None
-        use_amp = scaler is not None
+        # Get local epochs from config or use default
+        local_epochs = int(config.get("local_epochs", LOCAL_EPOCHS))
+        self.logger.info(f"Starting local training for {local_epochs} epochs...")
 
-        # Train the model
+        # Set model to training mode
         self.model.train()
-        epoch_losses = []
-        best_accuracy = 0
         
-        for epoch in range(epochs):
-            running_loss = 0.0
+        # Initialize tracking metrics
+        train_losses = []
+        train_accuracies = []
+        
+        # Training loop
+        for epoch in range(local_epochs):
             correct = 0
             total = 0
+            running_loss = 0.0
 
             for batch_idx, (inputs, targets) in enumerate(self.trainloader):
                 inputs, targets = inputs.to(self.device), targets.to(self.device)
-                self.optimizer.zero_grad(set_to_none=True)  # More efficient
                 
-                if use_amp:
-                    # Use mixed precision for faster training
-                    with torch.cuda.amp.autocast():
-                        outputs = self.model(inputs)
-                        loss = self.criterion(outputs, targets)
-                    
-                    # Scale loss and do backward pass
-                    scaler.scale(loss).backward()
-                    scaler.unscale_(self.optimizer)
-                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
-                    scaler.step(self.optimizer)
-                    scaler.update()
-                else:
-                    # Regular training path
-                    outputs = self.model(inputs)
-                    loss = self.criterion(outputs, targets)
-                    loss.backward()
-                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
-                    self.optimizer.step()
-
-                # Compute metrics
+                # Zero the parameter gradients
+                self.optimizer.zero_grad()
+                
+                # Forward + backward + optimize
+                outputs = self.model(inputs)
+                loss = self.criterion(outputs, targets)
+                loss.backward()
+                self.optimizer.step()
+                
+                # Calculate statistics
                 running_loss += loss.item()
-                _, predicted = outputs.max(1)
+                _, predicted = torch.max(outputs.data, 1)
                 total += targets.size(0)
-                correct += predicted.eq(targets).sum().item()
+                correct += (predicted == targets).sum().item()
                 
-                # Print batch progress every 50 batches (reduced from 100 for quicker feedback)
-                if batch_idx % 50 == 0:
-                    self.logger.debug(f"Epoch {epoch+1}, Batch {batch_idx}, Loss: {loss.item():.4f}")
-
-            # Log epoch metrics
-            accuracy = correct / total
-            avg_loss = running_loss / len(self.trainloader)
-            self.logger.info(
-                f"Client {self.client_id} - Epoch {epoch + 1}/{epochs}: Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}"
-            )
+            # Calculate epoch metrics
+            epoch_loss = running_loss / len(self.trainloader)
+            epoch_accuracy = correct / total
+            train_losses.append(epoch_loss)
+            train_accuracies.append(epoch_accuracy)
             
-            # Update learning rate
-            epoch_losses.append(avg_loss)
-            self.scheduler.step(avg_loss)
-
+            # Update learning rate scheduler
+            self.scheduler.step(epoch_loss)
+            
+            self.logger.info(f"Epoch {epoch+1}/{local_epochs}: "
+                           f"Loss: {epoch_loss:.4f}, "
+                           f"Accuracy: {epoch_accuracy:.4f}")
+        
         # Return updated model parameters and metrics
-        final_accuracy = correct / total
-        return self.get_parameters(config={}), total, {"accuracy": float(final_accuracy), "loss": float(avg_loss)}
+        parameters = self.get_parameters(config={})
+        metrics = {
+            "train_loss": float(train_losses[-1]),
+            "train_accuracy": float(train_accuracies[-1]),
+            "train_examples": len(self.trainloader.dataset)
+        }
 
-    def evaluate(self, parameters: List[np.ndarray], config: Dict[str, str]) -> Tuple[float, int, Dict]:
+        return parameters, len(self.trainloader.dataset), metrics
+
+    def evaluate(self, parameters: NDArrays, config: Dict[str, fl.common.Scalar]) -> Tuple[float, int, Dict]:
         """Evaluate the model on the local test dataset."""
-        self.logger.info(f"Client {self.client_id} evaluating model")
-
-        # Update local model with global parameters
         self.set_parameters(parameters)
-
-        # Evaluate the model
+        
+        # Set model to evaluation mode
         self.model.eval()
+        
         loss = 0.0
         correct = 0
         total = 0
         
-        # Track per-class metrics
-        class_correct = [0] * self.num_classes
-        class_total = [0] * self.num_classes
-
+        # No gradient calculation needed for evaluation
         with torch.no_grad():
             for inputs, targets in self.testloader:
                 inputs, targets = inputs.to(self.device), targets.to(self.device)
+                
+                # Forward pass
                 outputs = self.model(inputs)
+                
+                # Calculate loss
                 batch_loss = self.criterion(outputs, targets).item()
-                loss += batch_loss
-
-                _, predicted = outputs.max(1)
+                loss += batch_loss * targets.size(0)
+                
+                # Calculate accuracy
+                _, predicted = torch.max(outputs.data, 1)
                 total += targets.size(0)
-                correct += predicted.eq(targets).sum().item()
-                
-                # Calculate per-class accuracy
-                for i in range(len(targets)):
-                    label = targets[i]
-                    class_total[label] += 1
-                    if predicted[i] == label:
-                        class_correct[label] += 1
-
-        # Compute metrics
-        accuracy = correct / total
-        avg_loss = loss / len(self.testloader)
+                correct += (predicted == targets).sum().item()
         
-        # Log per-class accuracy
-        for i in range(self.num_classes):
-            if class_total[i] > 0:
-                class_acc = 100.0 * class_correct[i] / class_total[i]
-                self.logger.info(f"Class {i} accuracy: {class_acc:.2f}% ({class_correct[i]}/{class_total[i]})")
-                
-        self.logger.info(f"Client {self.client_id} evaluation - Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}")
-
-        return float(avg_loss), total, {"accuracy": float(accuracy)}
+        # Calculate average loss and accuracy
+        average_loss = loss / total
+        accuracy = correct / total
+        
+        metrics = {
+            "test_loss": float(average_loss),
+            "test_accuracy": float(accuracy)
+        }
+        
+        self.logger.info(f"Evaluation: Loss: {average_loss:.4f}, Accuracy: {accuracy:.4f}")
+        
+        return float(average_loss), total, metrics
 
 
 def main():
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Flower IoT client")
-    parser.add_argument("--client-id", type=int, required=True, help="Client ID")
-    parser.add_argument("--server-address", type=str, default="127.0.0.1:8080", help="Server address")
+    """Main function for client initialization and start."""
+    parser = argparse.ArgumentParser(description="IoT Client")
+    parser.add_argument(
+        "--client-id", type=int, required=True, help="Client ID (integer)"
+    )
+    parser.add_argument(
+        "--server-address", type=str, default="127.0.0.1:8080", help="Server address"
+    )
     args = parser.parse_args()
 
-    # Set device
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    logger = logging.getLogger(f"Client-{args.client_id}")
-    logger.info(f"Using device: {device}")
-
-    # Create client
-    client = IoTClient(client_id=args.client_id, device=device)
-
+    # Use CUDA if available
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
     # Start client
-    logger.info(f"Client {args.client_id} connecting to server at {args.server_address}")
-    fl.client.start_numpy_client(server_address=args.server_address, client=client)
+    client = IoTClient(client_id=args.client_id, device=device)
+    fl.client.start_numpy_client(args.server_address, client=client)
 
 
 if __name__ == "__main__":
