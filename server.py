@@ -11,7 +11,13 @@ from flwr.common import Metrics, Parameters, FitRes, EvaluateRes, parameters_to_
 from flwr.server.client_proxy import ClientProxy
 from flwr.server import ServerConfig
 from flwr.server.strategy import FedAvg
-from model import MalwareNetSmall  # Import the new model
+from model import NeuralNetwork  # Import the NeuralNetwork model
+
+# Server Configuration
+NUM_ROUNDS = 4
+MIN_CLIENTS = 2
+INPUT_SIZE = 17
+NUM_CLASSES = 10
 
 # Configure logging
 logging.basicConfig(
@@ -103,7 +109,7 @@ def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
 
 def save_parameters_to_model(parameters: Parameters, filename: str) -> None:
     """Save Flower parameters to PyTorch model."""
-    model = MalwareNetSmall()
+    model = NeuralNetwork(INPUT_SIZE, NUM_CLASSES)
     params_dict = zip(model.state_dict().keys(), parameters_to_ndarrays(parameters))
     state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
     model.load_state_dict(state_dict, strict=True)
@@ -116,28 +122,31 @@ def get_model_parameters(model: torch.nn.Module) -> NDArrays:
 
 def main():
     # Define initial model
-    model = MalwareNetSmall()
+    model = NeuralNetwork(INPUT_SIZE, NUM_CLASSES)
     initial_parameters = get_model_parameters(model)
-      # Define strategy with optimized parameters
+    
+    # Define strategy with optimized parameters
     strategy = SaveModelStrategy(
         evaluate_metrics_aggregation_fn=weighted_average,
-        min_available_clients=2,
-        min_fit_clients=2,
-        min_evaluate_clients=2,
+        min_available_clients=MIN_CLIENTS,
+        min_fit_clients=MIN_CLIENTS,
+        min_evaluate_clients=MIN_CLIENTS,
         initial_parameters=fl.common.ndarrays_to_parameters(initial_parameters),
-        # Configure fit parameters for faster convergence with sampled data
+        # Configure fit parameters for faster convergence
         on_fit_config_fn=lambda _: {
-            "epochs": 5,  # More local epochs for better accuracy with sampled data
-            "batch_size": 256  # Larger batch size for faster training
+            "epochs": 5,  # Local epochs per round
+            "batch_size": 128  # Batch size for training
         }
     )
     
     # Define server configuration
-    config = ServerConfig(num_rounds=5)  # More rounds to achieve higher accuracy
+    config = ServerConfig(num_rounds=NUM_ROUNDS)
     
     # Start server
     server_address = "0.0.0.0:8080"
-    logger.info(f"Starting server at {server_address}")
+    logger.info(f"Starting federated learning server at {server_address}")
+    logger.info(f"Configuration: {NUM_ROUNDS} rounds, {MIN_CLIENTS} minimum clients")
+    logger.info(f"Model: NeuralNetwork with {INPUT_SIZE} inputs, {NUM_CLASSES} classes")
     
     # Start Flower server
     fl.server.start_server(
