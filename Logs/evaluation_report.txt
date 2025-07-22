@@ -1,0 +1,22 @@
+MODEL EVALUATION REPORT
+==================================================
+
+Model: c:\Users\karthik cse\PycharmProjects\MegaProject\SavedGlobalModel\final_model.pth
+Data Directory: c:\Users\karthik cse\PycharmProjects\MegaProject\ReducedData
+Device: CPU
+
+OVERALL PERFORMANCE:
+Average Accuracy: 0.9508 ± 0.0000
+Average F1-Score: 0.9503 ± 0.0000
+Average Loss: 0.1542 ± 0.0000
+
+DEVICE-WISE RESULTS:
+------------------------------
+
+device_1_reduced:
+  Accuracy: 0.9508
+  Precision: 0.9576
+  Recall: 0.9508
+  F1-Score: 0.9503
+  Loss: 0.1542
+  Samples: 108000

@@ -1,0 +1,28 @@
+MODEL EVALUATION REPORT
+==================================================
+
+Model: c:\Users\karthik cse\PycharmProjects\MegaProject\SavedGlobalModel\final_model.pth
+Data Directory: c:\Users\karthik cse\PycharmProjects\MegaProject\ReducedData
+Device: CPU
+Allowed Labels: [0, 1, 2, 3, 5, 6, 7, 8, 9]
+
+EVALUATION RESULTS FOR device_1_reduced:
+------------------------------
+Accuracy: 0.9508
+Precision: 0.9576
+Recall: 0.9508
+F1-Score: 0.9503
+Loss: 0.1542
+Total Samples: 108000
+
+CLASS-WISE PERFORMANCE:
+------------------------------
+mirai.scan     : P=1.000, R=1.000, F1=1.000, Support=12000.0
+gafgyt.tcp     : P=0.999, R=1.000, F1=0.999, Support=12000.0
+benign         : P=0.999, R=0.999, F1=0.999, Support=12000.0
+mirai.udpplain : P=0.997, R=1.000, F1=0.999, Support=12000.0
+mirai.syn      : P=0.982, R=0.978, F1=0.980, Support=12000.0
+gafgyt.junk    : P=0.974, R=0.878, F1=0.924, Support=12000.0
+gafgyt.combo   : P=0.870, R=0.959, F1=0.912, Support=12000.0
+mirai.ack      : P=0.798, R=1.000, F1=0.887, Support=12000.0
+mirai.udp      : P=1.000, R=0.744, F1=0.853, Support=12000.0
