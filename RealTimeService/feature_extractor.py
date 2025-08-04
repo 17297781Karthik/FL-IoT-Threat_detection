@@ -6,11 +6,12 @@ Extracts network flow features from PCAP files for threat detection
 
 import pandas as pd
 import numpy as np
-from scapy.all import *
+from scapy.all import rdpcap
 from scapy.layers.inet import IP, TCP, UDP, ICMP
 from scapy.layers.l2 import Ether
 import os
 import logging
+import json
 from collections import defaultdict, Counter
 from typing import Dict, List, Tuple, Any
 import time
@@ -42,7 +43,6 @@ class NetworkFeatureExtractor:
         
     def read_pcap(self, pcap_file: str) -> List[Dict]:
         """Read PCAP file and extract basic packet information"""
-        logger.info(f"Reading PCAP file: {pcap_file}")
         
         try:
             packets = rdpcap(pcap_file)
@@ -86,7 +86,6 @@ class NetworkFeatureExtractor:
                 
                 packet_data.append(pkt_info)
                 
-            logger.info(f"Extracted {len(packet_data)} packets")
             return packet_data
             
         except Exception as e:
@@ -320,97 +319,172 @@ class NetworkFeatureExtractor:
         
         return features
     
-    def extract_features_from_pcap(self, pcap_file: str) -> pd.DataFrame:
-        """Extract features from a PCAP file"""
-        logger.info(f"Extracting features from: {pcap_file}")
+    def extract_features_from_pcap(self, pcap_file: str) -> Dict[str, Any]:
+        """Extract features from a PCAP file with simplified output"""
         
         # Read packets
         packets = self.read_pcap(pcap_file)
         if not packets:
-            logger.warning(f"No packets found in {pcap_file}")
-            return pd.DataFrame()
+            return {"status": "no_packets", "flows": 0, "packets": 0}
         
         # Create flows
         flows = self.create_flows(packets)
-        logger.info(f"Created {len(flows)} flows")
         
-        # Extract features for each flow
-        feature_data = []
+        # Simple summary instead of detailed features
+        summary = {
+            "status": "success",
+            "total_packets": len(packets),
+            "total_flows": len(flows),
+            "flows_summary": []
+        }
+        
+        # Extract simplified flow information
         for flow_key, flow_packets in flows.items():
-            flow_features = self.extract_flow_features(flow_packets)
-            flow_features['flow_id'] = flow_key
-            flow_features['packet_count'] = len(flow_packets)
-            feature_data.append(flow_features)
+            flow_summary = {
+                "flow_id": flow_key.split('-')[0][:15] + "...",  # Shortened flow ID
+                "packets": len(flow_packets),
+                "duration": round(max([p['timestamp'] for p in flow_packets]) - 
+                                min([p['timestamp'] for p in flow_packets]), 3),
+                "avg_size": round(sum([p['size'] for p in flow_packets]) / len(flow_packets), 1),
+                "protocol": flow_packets[0].get('protocol', 'unknown')
+            }
+            summary["flows_summary"].append(flow_summary)
         
-        if not feature_data:
-            logger.warning("No features extracted")
-            return pd.DataFrame()
-        
-        df = pd.DataFrame(feature_data)
-        logger.info(f"Extracted features for {len(df)} flows")
-        
-        # Ensure feature columns are in correct order
-        feature_columns = [col for col in self.features if col in df.columns]
-        other_columns = [col for col in df.columns if col not in self.features]
-        
-        return df[feature_columns + other_columns]
+        return summary
     
-    def process_multiple_pcaps(self, pcap_directory: str) -> pd.DataFrame:
-        """Process multiple PCAP files in a directory"""
-        logger.info(f"Processing PCAP files in: {pcap_directory}")
+    def process_multiple_pcaps(self, pcap_directory: str) -> Dict[str, Any]:
+        """Process multiple PCAP files in a directory with simplified output"""
         
         if not os.path.exists(pcap_directory):
-            logger.error(f"Directory not found: {pcap_directory}")
-            return pd.DataFrame()
+            return {"status": "directory_not_found", "path": pcap_directory}
         
         pcap_files = [f for f in os.listdir(pcap_directory) if f.endswith('.pcap')]
-        logger.info(f"Found {len(pcap_files)} PCAP files")
         
-        all_features = []
+        results = {
+            "status": "success",
+            "total_files": len(pcap_files),
+            "processed_files": 0,
+            "total_flows": 0,
+            "total_packets": 0,
+            "file_summaries": []
+        }
         
         for pcap_file in pcap_files:
             pcap_path = os.path.join(pcap_directory, pcap_file)
             try:
-                df = self.extract_features_from_pcap(pcap_path)
-                if not df.empty:
-                    df['source_file'] = pcap_file
-                    all_features.append(df)
+                file_result = self.extract_features_from_pcap(pcap_path)
+                if file_result["status"] == "success":
+                    results["processed_files"] += 1
+                    results["total_flows"] += file_result["total_flows"]
+                    results["total_packets"] += file_result["total_packets"]
+                    
+                    file_summary = {
+                        "filename": pcap_file,
+                        "flows": file_result["total_flows"],
+                        "packets": file_result["total_packets"]
+                    }
+                    results["file_summaries"].append(file_summary)
+                    
             except Exception as e:
                 logger.error(f"Error processing {pcap_file}: {e}")
                 continue
         
-        if all_features:
-            combined_df = pd.concat(all_features, ignore_index=True)
-            logger.info(f"Combined features: {len(combined_df)} total flows")
-            return combined_df
-        else:
-            logger.warning("No features extracted from any PCAP files")
-            return pd.DataFrame()
+        return results
     
-    def save_features(self, features_df: pd.DataFrame, output_file: str):
-        """Save extracted features to CSV file"""
-        if features_df.empty:
-            logger.warning("No features to save")
+    def save_features(self, results: Dict[str, Any], output_file: str):
+        """Save extracted results to JSON file with simplified format"""
+        if not results or results.get("status") != "success":
+            logger.warning("No valid results to save")
             return
         
-        features_df.to_csv(output_file, index=False)
-        logger.info(f"Features saved to: {output_file}")
+        with open(output_file, 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        print(f"Results saved to: {output_file}")
+        print(f"Summary: {results['total_files']} files, {results['total_flows']} flows, {results['total_packets']} packets")
+
+    def quick_analysis(self, pcap_file: str) -> str:
+        """Perform quick analysis with minimal output for real-time monitoring"""
+        try:
+            packets = self.read_pcap(pcap_file)
+            if not packets:
+                return "No packets found"
+            
+            flows = self.create_flows(packets)
+            
+            # Get basic stats
+            packet_count = len(packets)
+            flow_count = len(flows)
+            unique_ips = len(set([p.get('src_ip', '') for p in packets] + [p.get('dst_ip', '') for p in packets]))
+            
+            # Determine traffic type based on protocols
+            protocols = [p.get('protocol', 0) for p in packets]
+            tcp_count = protocols.count(6)
+            udp_count = protocols.count(17)
+            
+            # Simple threat assessment
+            if flow_count > packet_count * 0.8:
+                threat_level = "HIGH"
+            elif flow_count > packet_count * 0.5:
+                threat_level = "MEDIUM"
+            else:
+                threat_level = "LOW"
+            
+            return f"[{threat_level}] {packet_count}p/{flow_count}f/{unique_ips}IPs | TCP:{tcp_count} UDP:{udp_count}"
+            
+        except Exception as e:
+            return f"Error: {str(e)[:30]}..."
+
+    def print_simple_summary(self, results: Dict[str, Any]):
+        """Print a simple, readable summary instead of huge JSON output"""
+        if results["status"] != "success":
+            print(f"Status: {results['status']}")
+            return
+        
+        print("=" * 50)
+        print("NETWORK TRAFFIC ANALYSIS SUMMARY")
+        print("=" * 50)
+        print(f"Total Files Processed: {results.get('total_files', 0)}")
+        print(f"Total Flows Detected: {results.get('total_flows', 0)}")
+        print(f"Total Packets Analyzed: {results.get('total_packets', 0)}")
+        
+        if 'file_summaries' in results:
+            print("\nPer-File Summary:")
+            print("-" * 30)
+            for file_sum in results['file_summaries'][:5]:  # Show only first 5 files
+                print(f"{file_sum['filename']}: {file_sum['flows']} flows, {file_sum['packets']} packets")
+            
+            if len(results['file_summaries']) > 5:
+                print(f"... and {len(results['file_summaries']) - 5} more files")
+        
+        print("=" * 50)
 
 def main():
-    """Main function for testing feature extraction"""
+    """Main function for testing feature extraction with simplified output"""
     extractor = NetworkFeatureExtractor()
     
     # Test with a single PCAP file
     pcap_file = "../samplePackets/pcaps/00_benign.pcap"
     if os.path.exists(pcap_file):
-        features_df = extractor.extract_features_from_pcap(pcap_file)
-        print(f"Extracted features shape: {features_df.shape}")
-        print(f"Features: {list(features_df.columns)}")
+        print("Quick Analysis:")
+        quick_result = extractor.quick_analysis(pcap_file)
+        print(f"  {pcap_file}: {quick_result}")
         
-        # Save features
-        extractor.save_features(features_df, "test_features.csv")
+        print("\nDetailed Analysis:")
+        results = extractor.extract_features_from_pcap(pcap_file)
+        extractor.print_simple_summary(results)
+        
+        # Save simplified results
+        extractor.save_features(results, "simple_analysis_results.json")
     else:
         print(f"Test PCAP file not found: {pcap_file}")
+        print("Testing with sample directory...")
+        
+        # Test with directory
+        sample_dir = "../samplePackets"
+        if os.path.exists(sample_dir):
+            results = extractor.process_multiple_pcaps(sample_dir)
+            extractor.print_simple_summary(results)
 
 if __name__ == "__main__":
     main()
