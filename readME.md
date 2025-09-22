@@ -2,62 +2,62 @@
 
 A **Federated Learning-based IoT Threat Detection System** that uses distributed machine learning to detect malware and network attacks in IoT devices while preserving data privacy.
 
-## 🔍 Overview
+## Overview
 
 This project implements a federated learning framework for IoT threat detection using the N-BaIoT dataset. The system trains neural network models across multiple IoT devices without centralizing sensitive data, enabling collaborative threat detection while maintaining privacy.
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 FL-IoT-Threat Detection/
-├── 📁 Core Components
+├── Core Components
 │   ├── server.py                    # Federated learning server (Flower)
 │   ├── client1.py                   # FL client for device 1
 │   ├── client2.py                   # FL client for device 2
 │   └── model.py                     # Neural network architecture
-├── 📁 Real-time Detection
+├── Real-time Detection
 │   └── RealTimeService/
 │       ├── realtime_pipeline.py     # Real-time threat detection pipeline
 │       ├── threat_predictor.py      # ML-based threat prediction
 │       ├── feature_extractor.py     # Network feature extraction
 │       └── monitor.py               # Continuous monitoring service
-├── 📁 Analysis & Training
+├── Analysis & Training
 │   ├── analysis.ipynb               # Data analysis and exploration
 │   ├── reduucedTrain.ipynb          # Training with reduced dataset
 │   ├── devicewise_analysis.ipynb    # Device-specific analysis
 │   └── federated_learning.py       # Custom FL implementation
-├── 📁 Data Simulation
+├── Data Simulation
 │   └── samplePackets/
 │       └── packet_simulator.py      # IoT traffic simulation
-└── 📁 Results & Models
+└── Results & Models
     ├── SavedGlobalModel/            # Trained federated models
     ├── Results/                     # Performance metrics & plots
     └── Logs/                        # Training and evaluation logs
 ```
 
-## ✨ Features
+## Features
 
-### 🔐 **Federated Learning**
+### **Federated Learning**
 - **Privacy-Preserving**: Train models without sharing raw data
 - **Distributed Training**: Multiple IoT devices collaborate in learning
 - **Flower Framework**: Production-ready federated learning implementation
 
-### 🛡️ **Threat Detection**
+### **Threat Detection**
 - **Multi-class Classification**: Detects various IoT malware types
 - **Real-time Monitoring**: Continuous network traffic analysis
 - **Attack Types**: Gafgyt, Mirai, and other IoT botnets
 
-### 📊 **Advanced Analytics**
+### **Advanced Analytics**
 - **Network Feature Extraction**: 115+ statistical network features
 - **Performance Visualization**: Confusion matrices, ROC curves
 - **Device-wise Analysis**: Individual device behavior patterns
 
-### 🔧 **Real-time Pipeline**
+### **Real-time Pipeline**
 - **PCAP Processing**: Live network packet analysis
 - **Feature Engineering**: Automated feature extraction from traffic
 - **Threat Classification**: ML-based real-time threat scoring
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 ```bash
@@ -105,7 +105,7 @@ jupyter notebook
 # Open: analysis.ipynb, reduucedTrain.ipynb, devicewise_analysis.ipynb
 ```
 
-## 📊 Dataset
+## Dataset
 
 The project uses the **N-BaIoT dataset** containing network traffic from 9 IoT devices under various attack scenarios:
 
@@ -120,7 +120,7 @@ The project uses the **N-BaIoT dataset** containing network traffic from 9 IoT d
 - Samsung SNH Camera, SimpleHome Security Camera
 - And more...
 
-## 🔧 Configuration
+## Configuration
 
 ### **Model Configuration (`model.py`)**
 ```python
@@ -140,7 +140,7 @@ The project uses the **N-BaIoT dataset** containing network traffic from 9 IoT d
 - Evaluation: Accuracy, Loss metrics
 ```
 
-## 📈 Performance Metrics
+## Performance Metrics
 
 The system provides comprehensive evaluation metrics:
 
@@ -150,7 +150,7 @@ The system provides comprehensive evaluation metrics:
 - **Confusion Matrix**: Detailed classification breakdown
 - **ROC Curves**: True/False positive trade-offs
 
-## 🛠️ Advanced Usage
+## Advanced Usage
 
 ### **Custom Data Pipeline**
 ```bash
@@ -180,7 +180,7 @@ predictor = IoTThreatPredictor("SavedGlobalModel/final_model.pth")
 threat_score = predictor.predict_pcap("network_traffic.pcap")
 ```
 
-## 🔬 Research Applications
+## Research Applications
 
 This project supports research in:
 
@@ -190,7 +190,7 @@ This project supports research in:
 - **IoT Botnet Analysis**
 - **Distributed AI for Edge Computing**
 
-## 📁 Key Files Description
+## Key Files Description
 
 | File/Directory | Description |
 |----------------|-------------|
@@ -204,7 +204,7 @@ This project supports research in:
 | `test.py` | Model evaluation and performance testing |
 | `requirements.txt` | Python dependencies |
 
-## 🤝 Contributing
+## Contributing
 
 1. **Fork the repository**
 2. **Create a feature branch**: `git checkout -b feature/new-feature`
@@ -214,16 +214,16 @@ This project supports research in:
 
 
 
-## 🔗 References
+## References
 
 - **N-BaIoT Dataset**: [UCI ML Repository](https://archive.ics.uci.edu/ml/datasets/Detection_of_IoT_botnet_attacks_N_BaIoT)
 - **Flower Framework**: [https://flower.dev/](https://flower.dev/)
 - **PyTorch**: [https://pytorch.org/](https://pytorch.org/)
 
-## 📧 Contact
+## Contact
 
 For questions, issues, or collaborations, please open an issue or contact the project maintainer.
 
 ---
 
-**⭐ Star this repository if you find it useful for your IoT security research!**
+**Star this repository if you find it useful for your IoT security research!**
