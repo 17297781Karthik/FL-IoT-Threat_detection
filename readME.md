@@ -190,25 +190,12 @@ This project supports research in:
 - **IoT Botnet Analysis**
 - **Distributed AI for Edge Computing**
 
-## Key Files Description
-
-| File/Directory | Description |
-|----------------|-------------|
-| `server.py` | Flower-based federated learning server |
-| `client1.py`, `client2.py` | FL clients for different IoT devices |
-| `model.py` | Neural network architecture definition |
-| `federated_learning.py` | Custom FL implementation with detailed logging |
-| `RealTimeService/` | Complete real-time threat detection pipeline |
-| `analysis.ipynb` | Comprehensive data analysis and visualization |
-| `reduucedTrain.ipynb` | Training with reduced dataset for faster development |
-| `test.py` | Model evaluation and performance testing |
-| `requirements.txt` | Python dependencies |
-
 ## Contributing
+New contributions are always welcome feel free to raise a issue or a PR for any bugs or new feature.
 
 1. **Fork the repository**
 2. **Create a feature branch**: `git checkout -b feature/new-feature`
-3. **Commit changes**: `git commit -am 'Add new feature'`
+3. **Commit changes**: `git commit -m 'Add new feature'`
 4. **Push to branch**: `git push origin feature/new-feature`
 5. **Submit a Pull Request**
 
