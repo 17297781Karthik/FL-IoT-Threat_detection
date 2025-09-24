@@ -14,11 +14,10 @@ def load_and_preprocess_data():
     """
     Load and preprocess data from device_1_reduced.csv following notebook approach
     """
-    # Read the reduced dataset
+    # Read the dataset
     df = pd.read_csv("ReducedData/device_1_reduced.csv")
     print(f"Dataset shape: {df.shape}")
 
-    # Filter for labels 0,1,2,3,5,6,7,8,9 (as in notebook)
     df_filtered = df[df['label'].isin([0, 1, 2, 3, 5, 6, 7, 8, 9])].copy()
     print(f"Filtered dataset shape: {df_filtered.shape}")
 

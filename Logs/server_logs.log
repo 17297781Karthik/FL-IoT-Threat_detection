@@ -2519,3 +2519,72 @@
 2025-07-20 18:15:58,401 - flwr - INFO - 
 2025-07-20 18:15:58,440 - Server - INFO - Model saved to SavedGlobalModel/final_model.pth
 2025-07-20 18:15:58,440 - Server - INFO - Final model saved to SavedGlobalModel/final_model.pth
+2025-09-18 21:20:53,262 - Server - INFO - SaveModelStrategy initialized
+2025-09-18 21:20:53,262 - Server - INFO - Starting federated learning server at 0.0.0.0:8080
+2025-09-18 21:20:53,262 - Server - INFO - Configuration: 4 rounds, 2 minimum clients
+2025-09-18 21:20:53,262 - Server - INFO - Model: NeuralNetwork with 17 inputs, 10 classes
+2025-09-18 21:20:53,266 - flwr - INFO - Starting Flower server, config: num_rounds=4, no round_timeout
+2025-09-18 21:20:53,324 - flwr - INFO - Flower ECE: gRPC server running (4 rounds), SSL is disabled
+2025-09-18 21:20:53,324 - flwr - INFO - [INIT]
+2025-09-18 21:20:53,324 - flwr - INFO - Using initial global parameters provided by strategy
+2025-09-18 21:20:53,324 - flwr - INFO - Starting evaluation of initial global parameters
+2025-09-18 21:20:53,324 - flwr - INFO - Evaluation returned no results (`None`)
+2025-09-18 21:20:53,324 - flwr - INFO - 
+2025-09-18 21:20:53,324 - flwr - INFO - [ROUND 1]
+2025-09-18 21:51:51,821 - flwr - INFO - configure_fit: strategy sampled 2 clients (out of 2)
+2025-09-18 21:52:05,830 - flwr - INFO - aggregate_fit: received 2 results and 0 failures
+2025-09-18 21:52:05,831 - Server - INFO - Round 1: Aggregating updates from 2 clients
+2025-09-18 21:52:05,834 - flwr - WARNING - No fit_metrics_aggregation_fn provided
+2025-09-18 21:52:05,834 - Server - INFO - Round 1: Global model parameters updated
+2025-09-18 21:52:05,847 - Server - INFO - Model saved to SavedGlobalModel/model_round_1.pth
+2025-09-18 21:52:05,847 - Server - INFO - Round 1: Saved checkpoint to model_round_1.pth
+2025-09-18 21:52:05,847 - flwr - INFO - configure_evaluate: strategy sampled 2 clients (out of 2)
+2025-09-18 21:52:06,215 - flwr - INFO - aggregate_evaluate: received 2 results and 0 failures
+2025-09-18 21:52:06,215 - Server - INFO - Round 1: Aggregating evaluation results from 2 clients
+2025-09-18 21:52:06,215 - Server - INFO - Aggregated metrics: {'accuracy': 0.9245601851851852}
+2025-09-18 21:52:06,215 - flwr - INFO - 
+2025-09-18 21:52:06,215 - flwr - INFO - [ROUND 2]
+2025-09-18 21:52:06,215 - flwr - INFO - configure_fit: strategy sampled 2 clients (out of 2)
+2025-09-18 21:52:20,837 - flwr - INFO - aggregate_fit: received 2 results and 0 failures
+2025-09-18 21:52:20,837 - Server - INFO - Round 2: Aggregating updates from 2 clients
+2025-09-18 21:52:20,839 - Server - INFO - Round 2: Global model parameters updated
+2025-09-18 21:52:20,839 - flwr - INFO - configure_evaluate: strategy sampled 2 clients (out of 2)
+2025-09-18 21:52:21,244 - flwr - INFO - aggregate_evaluate: received 2 results and 0 failures
+2025-09-18 21:52:21,245 - Server - INFO - Round 2: Aggregating evaluation results from 2 clients
+2025-09-18 21:52:21,245 - Server - INFO - Aggregated metrics: {'accuracy': 0.939375}
+2025-09-18 21:52:21,245 - flwr - INFO - 
+2025-09-18 21:52:21,245 - flwr - INFO - [ROUND 3]
+2025-09-18 21:52:21,245 - flwr - INFO - configure_fit: strategy sampled 2 clients (out of 2)
+2025-09-18 21:52:36,602 - flwr - INFO - aggregate_fit: received 2 results and 0 failures
+2025-09-18 21:52:36,602 - Server - INFO - Round 3: Aggregating updates from 2 clients
+2025-09-18 21:52:36,603 - Server - INFO - Round 3: Global model parameters updated
+2025-09-18 21:52:36,604 - flwr - INFO - configure_evaluate: strategy sampled 2 clients (out of 2)
+2025-09-18 21:52:37,020 - flwr - INFO - aggregate_evaluate: received 2 results and 0 failures
+2025-09-18 21:52:37,020 - Server - INFO - Round 3: Aggregating evaluation results from 2 clients
+2025-09-18 21:52:37,020 - Server - INFO - Aggregated metrics: {'accuracy': 0.9391898148148148}
+2025-09-18 21:52:37,020 - flwr - INFO - 
+2025-09-18 21:52:37,020 - flwr - INFO - [ROUND 4]
+2025-09-18 21:52:37,020 - flwr - INFO - configure_fit: strategy sampled 2 clients (out of 2)
+2025-09-18 21:52:55,675 - flwr - INFO - aggregate_fit: received 2 results and 0 failures
+2025-09-18 21:52:55,676 - Server - INFO - Round 4: Aggregating updates from 2 clients
+2025-09-18 21:52:55,678 - Server - INFO - Round 4: Global model parameters updated
+2025-09-18 21:52:55,678 - flwr - INFO - configure_evaluate: strategy sampled 2 clients (out of 2)
+2025-09-18 21:52:56,060 - flwr - INFO - aggregate_evaluate: received 2 results and 0 failures
+2025-09-18 21:52:56,061 - Server - INFO - Round 4: Aggregating evaluation results from 2 clients
+2025-09-18 21:52:56,061 - Server - INFO - Aggregated metrics: {'accuracy': 0.9370601851851852}
+2025-09-18 21:52:56,061 - flwr - INFO - 
+2025-09-18 21:52:56,061 - flwr - INFO - [SUMMARY]
+2025-09-18 21:52:56,061 - flwr - INFO - Run finished 4 round(s) in 1922.74s
+2025-09-18 21:52:56,061 - flwr - INFO - 	History (loss, distributed):
+2025-09-18 21:52:56,061 - flwr - INFO - 		round 1: 0.2075352668762207
+2025-09-18 21:52:56,061 - flwr - INFO - 		round 2: 0.15167157351970673
+2025-09-18 21:52:56,061 - flwr - INFO - 		round 3: 0.1503504514694214
+2025-09-18 21:52:56,063 - flwr - INFO - 		round 4: 0.16101553291082382
+2025-09-18 21:52:56,063 - flwr - INFO - 	History (metrics, distributed, evaluate):
+2025-09-18 21:52:56,063 - flwr - INFO - 	{'accuracy': [(1, 0.9245601851851852),
+2025-09-18 21:52:56,063 - flwr - INFO - 	              (2, 0.939375),
+2025-09-18 21:52:56,063 - flwr - INFO - 	              (3, 0.9391898148148148),
+2025-09-18 21:52:56,063 - flwr - INFO - 	              (4, 0.9370601851851852)]}
+2025-09-18 21:52:56,063 - flwr - INFO - 
+2025-09-18 21:52:56,221 - Server - INFO - Model saved to SavedGlobalModel/final_model.pth
+2025-09-18 21:52:56,221 - Server - INFO - Final model saved to SavedGlobalModel/final_model.pth
