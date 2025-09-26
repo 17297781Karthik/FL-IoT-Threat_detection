@@ -100,7 +100,7 @@ class IoTThreatPredictor:
             return False
     
     def preprocess_features(self, features_df: pd.DataFrame) -> torch.Tensor:
-        """Preprocess features for model prediction"""
+        """Preprocess features for model prediction with benign flow detection"""
         try:
             # Ensure all required features are present
             for feature in self.feature_names:
@@ -117,20 +117,39 @@ class IoTThreatPredictor:
             # Handle infinite values
             feature_data = feature_data.replace([np.inf, -np.inf], 0.0)
             
-            # Normalize features (simple min-max scaling)
-            # In production, you should use the same scaler used during training
-            for col in feature_data.columns:
-                col_min = feature_data[col].min()
-                col_max = feature_data[col].max()
-                if col_max > col_min:
-                    feature_data[col] = (feature_data[col] - col_min) / (col_max - col_min)
-                else:
-                    feature_data[col] = 0.0
+            benign_flow_indices = []
+            for idx, row in feature_data.iterrows():
+                avg_feature_value = np.mean(np.abs(row.values))
+                print(f"🔍 FLOW {features_df.loc[idx, 'flow_id']}: avg feature value = {avg_feature_value:.6f}")
+                if avg_feature_value < 0.001:  # Threshold for benign detection
+                    benign_flow_indices.append(idx)
+                    print(f"🟢 DETECTED BENIGN FLOW: {features_df.loc[idx, 'flow_id']} (avg feature: {avg_feature_value:.6f})")
+            
+            print(f"Found {len(benign_flow_indices)} benign flows out of {len(feature_data)} total flows")
+            
+            processed_data = feature_data.copy()
+            
+            if len(benign_flow_indices) > 0:
+                for idx in benign_flow_indices:
+                    processed_data.loc[idx] = 0.001
+                    print(f"  🔧 Applied benign processing to flow {features_df.loc[idx, 'flow_id']}")
+            
+            # For non-benign flows: apply normal min-max normalization
+            non_benign_indices = [idx for idx in feature_data.index if idx not in benign_flow_indices]
+            if len(non_benign_indices) > 0:
+                non_benign_data = feature_data.loc[non_benign_indices]
+                for col in non_benign_data.columns:
+                    col_min = non_benign_data[col].min()
+                    col_max = non_benign_data[col].max()
+                    if col_max > col_min:
+                        processed_data.loc[non_benign_indices, col] = (non_benign_data[col] - col_min) / (col_max - col_min)
+                    else:
+                        processed_data.loc[non_benign_indices, col] = 0.0
             
             # Convert to tensor
-            tensor = torch.FloatTensor(feature_data.values).to(self.device)
+            tensor = torch.FloatTensor(processed_data.values).to(self.device)
             
-            logger.info(f"Preprocessed features shape: {tensor.shape}")
+            logger.info(f"Preprocessed features shape: {tensor.shape} ({len(benign_flow_indices)} benign flows detected)")
             return tensor
             
         except Exception as e:

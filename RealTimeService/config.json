@@ -1,7 +1,7 @@
 {
   "paths": {
     "pcap_directory": "../samplePackets/pcaps",
-    "model_path": "../SavedGlobalModel/model_round_15.pth",
+    "model_path": "SavedGlobalModel/final_model.pth",
     
     "results_directory": "detection_results",
     "log_file": "iot_threat_detection.log"

@@ -1,0 +1,31 @@
+{
+  "generation_time": "2025-09-26T23:29:50.212420",
+  "files_processed": {
+    "total": 10,
+    "successful": 10,
+    "failed": 0,
+    "success_rate": 100.0
+  },
+  "flow_analysis": {
+    "total_flows": 9000,
+    "malicious_flows": 9000,
+    "benign_flows": 0,
+    "malicious_percentage": 100.0
+  },
+  "attack_distribution": {
+    "Gafgyt Combo": 9000
+  },
+  "threat_level_distribution": {
+    "None": 0,
+    "Low": 9000,
+    "Medium": 0,
+    "High": 0,
+    "Uncertain": 0
+  },
+  "performance": {
+    "average_processing_time": 0.5887158155441284,
+    "total_processing_time": 5.887158155441284,
+    "fastest_processing": 0.14783143997192383,
+    "slowest_processing": 3.5856456756591797
+  }
+}
