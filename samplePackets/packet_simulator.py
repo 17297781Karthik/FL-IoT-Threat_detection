@@ -5,11 +5,6 @@ Generates realistic network packets for specific attack types and benign traffic
 using Scapy for federated learning training data.
 """
 
-import random
-import time
-import logging
-import os
-from datetime import datetime, timedelta
 from scapy.all import *
 from scapy.layers.inet import IP, TCP, UDP, ICMP
 from scapy.layers.l2 import Ether
@@ -57,7 +52,6 @@ class EnhancedIoTTrafficSimulator:
             "00:90:A9",  # Western Digital
         ]
         
-        # Common IoT device profiles
         self.device_profiles = {
             'smart_camera': {
                 'ports': [80, 443, 554, 8080, 8181, 1935],
