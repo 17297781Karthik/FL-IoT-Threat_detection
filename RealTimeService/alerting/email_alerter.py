@@ -21,7 +21,6 @@ class ThreatEmailAlerter:
         self.email_password = os.getenv('EMAIL_PASSWORD')
         self.email_from = os.getenv('EMAIL_FROM')
         self.email_to = os.getenv('EMAIL_TO')
-        
         if not all([self.email_username, self.email_password, self.email_from, self.email_to]):
             raise ValueError("Email credentials not properly configured in .env file")
         
@@ -45,7 +44,7 @@ class ThreatEmailAlerter:
             return 'gafgyt'
         elif 'mirai' in attack_lower:
             return 'mirai'
-        return None
+        return 'mirai'
     
     def _create_email_body(self, detection_data: Dict[str, Any]) -> str:
         attack_type = detection_data.get('attack_type', 'Unknown')
