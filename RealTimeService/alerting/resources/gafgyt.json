@@ -1,0 +1,24 @@
+{
+  "name": "Gafgyt",
+  "description": "Gafgyt is a malware family that targets Internet of Things devices, particularly those running Linux-based operating systems. This botnet malware exploits weak or default credentials to gain unauthorized access to vulnerable devices. Once compromised, infected devices become part of a distributed network capable of launching coordinated attacks. The malware is known for its ability to conduct various types of network flooding attacks and has been observed targeting routers, IP cameras, and other connected devices with inadequate security configurations.",
+  "severity": "High",
+  "characteristics": [
+    "Exploits default or weak device credentials",
+    "Targets Linux-based IoT devices",
+    "Capable of launching distributed denial-of-service attacks",
+    "Spreads through automated scanning of vulnerable devices",
+    "Maintains persistence through process injection"
+  ],
+  "mitigation_strategies": [
+    "Immediately change all default credentials on IoT devices to strong, unique passwords",
+    "Implement network segmentation to isolate IoT devices from critical infrastructure",
+    "Deploy intrusion detection systems with signatures for Gafgyt traffic patterns",
+    "Regularly update device firmware to patch known vulnerabilities",
+    "Monitor network traffic for unusual connection patterns and data volumes",
+    "Disable unnecessary services and ports on IoT devices",
+    "Implement rate limiting and traffic filtering at network boundaries",
+    "Conduct periodic security audits of all connected devices",
+    "Restrict remote access to IoT devices and require VPN connections",
+    "Deploy application-level firewalls with deep packet inspection"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "Mirai",
+  "description": "Mirai is a sophisticated botnet malware specifically designed to compromise Internet of Things devices. The malware systematically scans for vulnerable devices using known default credentials, subsequently converting them into remotely controlled bots. Once infected, devices become part of a massive botnet infrastructure capable of executing large-scale distributed denial-of-service attacks. Mirai has demonstrated the capacity to aggregate thousands of compromised devices, creating significant network disruption potential. The malware is particularly effective against devices with factory-default configurations and inadequate security measures.",
+  "severity": "Critical",
+  "characteristics": [
+    "Automated scanning for devices with default credentials",
+    "Self-propagating through vulnerable IoT ecosystems",
+    "Command and control infrastructure for coordinated attacks",
+    "Multiple attack vectors including SYN floods, ACK floods, and UDP floods",
+    "Memory-resident operation to evade detection"
+  ],
+  "mitigation_strategies": [
+    "Enforce mandatory password changes from default credentials during initial device setup",
+    "Implement robust network access control lists to restrict IoT device communication",
+    "Deploy behavioral analysis tools to detect anomalous device activity",
+    "Establish comprehensive logging and monitoring for all IoT device connections",
+    "Apply security patches and firmware updates as soon as they become available",
+    "Utilize network traffic analysis to identify command and control communications",
+    "Implement device authentication mechanisms beyond simple password protection",
+    "Configure automatic alerts for unauthorized access attempts",
+    "Employ network micro-segmentation to contain potential infections",
+    "Establish incident response procedures specific to IoT compromise scenarios",
+    "Disable Universal Plug and Play and other automatic discovery protocols",
+    "Implement egress filtering to prevent participation in DDoS attacks"
+  ]
+}

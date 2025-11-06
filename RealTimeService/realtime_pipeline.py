@@ -13,9 +13,9 @@ from datetime import datetime
 from typing import Dict, List, Any
 import argparse
 
-# Import local modules
 from feature_extractor import NetworkFeatureExtractor
 from threat_predictor import IoTThreatPredictor
+from alerting import ThreatEmailAlerter
 
 # Configure logging
 logging.basicConfig(
@@ -33,15 +33,22 @@ class RealTimeThreatDetectionPipeline:
     Complete pipeline for real-time IoT threat detection
     """
     
-    def __init__(self, pcap_path: str, model_path: str):
+    def __init__(self, pcap_path: str, model_path: str, enable_alerts: bool = False):
         self.pcap_path = pcap_path
         self.model_path = model_path
+        self.enable_alerts = enable_alerts
         
-        # Initialize components
         self.feature_extractor = NetworkFeatureExtractor()
         self.threat_predictor = IoTThreatPredictor(model_path)
         
-        # Results storage
+        if self.enable_alerts:
+            try:
+                self.alerter = ThreatEmailAlerter()
+                logger.info("Email alerting enabled")
+            except Exception as e:
+                logger.warning(f"Email alerting disabled: {e}")
+                self.enable_alerts = False
+        
         self.results_dir = "detection_results"
         os.makedirs(self.results_dir, exist_ok=True)
         
@@ -93,6 +100,9 @@ class RealTimeThreatDetectionPipeline:
                 'timestamp': datetime.now().isoformat()
             }
             
+            if self.enable_alerts and analysis.get('malicious_flows', 0) > 0:
+                self._send_threat_alerts(analysis, pcap_file)
+            
             logger.info(f"Successfully processed {pcap_file} in {processing_time:.2f} seconds")
             return result
             
@@ -138,7 +148,6 @@ class RealTimeThreatDetectionPipeline:
         malicious_flows = sum(1 for p in predictions if p['is_malicious'])
         benign_flows = total_flows - malicious_flows
         
-        # Count attack types
         attack_counts = {}
         threat_levels = {'None': 0, 'Low': 0, 'Medium': 0, 'High': 0, 'Uncertain': 0}
         confidence_scores = []
@@ -152,7 +161,6 @@ class RealTimeThreatDetectionPipeline:
             
             confidence_scores.append(pred['confidence'])
         
-        # Calculate statistics
         avg_confidence = sum(confidence_scores) / len(confidence_scores)
         max_confidence = max(confidence_scores)
         min_confidence = min(confidence_scores)
@@ -176,6 +184,34 @@ class RealTimeThreatDetectionPipeline:
         }
         
         return analysis
+    
+    def _send_threat_alerts(self, analysis: Dict[str, Any], pcap_file: str):
+        if not self.enable_alerts:
+            return
+        
+        attack_distribution = analysis.get('attack_type_distribution', {})
+        
+        for attack_type, count in attack_distribution.items():
+            if attack_type.lower() == 'benign':
+                continue
+            
+            confidence_stats = analysis.get('confidence_statistics', {})
+            avg_confidence = confidence_stats.get('average', 0) * 100
+            
+            detection_data = {
+                'attack_type': attack_type,
+                'confidence': f"{avg_confidence:.1f}%",
+                'file': os.path.basename(pcap_file),
+                'total_flows': analysis.get('total_flows', 0),
+                'malicious_flows': count,
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
+            
+            try:
+                self.alerter.send_alert(detection_data)
+                logger.info(f"Alert sent for {attack_type}")
+            except Exception as e:
+                logger.error(f"Failed to send alert for {attack_type}: {e}")
     
     def _save_result(self, result: Dict[str, Any], output_file: str):
         """Save result to JSON file"""
@@ -295,18 +331,20 @@ def main():
         '--single-file',
         help='Process a single PCAP file instead of directory'
     )
+    parser.add_argument(
+        '--enable-alerts',
+        action='store_true',
+        help='Enable email alerts for detected threats'
+    )
     
     args = parser.parse_args()
     
-    # Initialize pipeline
-    pipeline = RealTimeThreatDetectionPipeline(args.pcap_path, args.model_path)
+    pipeline = RealTimeThreatDetectionPipeline(args.pcap_path, args.model_path, args.enable_alerts)
     
     if args.single_file:
-        # Process single file
         result = pipeline.process_single_pcap(args.single_file)
         print(json.dumps(result, indent=2))
     else:
-        # Run complete pipeline
         pipeline.run_pipeline()
 
 if __name__ == "__main__":
