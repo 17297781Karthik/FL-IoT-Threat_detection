@@ -2,6 +2,8 @@
 
 Quick start guide for running the dashboard in development mode.
 
+> **Note:** This frontend implementation is part of the fullstack branch.
+
 ## Development Mode
 
 Run both the API server and frontend development server:
