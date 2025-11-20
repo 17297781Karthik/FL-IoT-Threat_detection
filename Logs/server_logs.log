@@ -3815,4 +3815,3 @@
 2025-10-31 00:24:08,206 - flwr - INFO - 	              (4, 0.8039537037037037)]}
 2025-10-31 00:24:08,206 - flwr - INFO - 
 2025-10-31 00:24:08,290 - Server - INFO - Model saved to SavedGlobalModel/final_model.pth
-2025-10-31 00:24:08,292 - Server - INFO - Final model saved to SavedGlobalModel/final_model.pth
