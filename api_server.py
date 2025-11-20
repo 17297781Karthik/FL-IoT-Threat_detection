@@ -388,4 +388,7 @@ if __name__ == '__main__':
     RESULTS_DIR.mkdir(exist_ok=True)
     MODELS_DIR.mkdir(exist_ok=True)
     
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Run server
+    # For production, use a WSGI server like gunicorn instead
+    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(host='0.0.0.0', port=5000, debug=debug_mode)
