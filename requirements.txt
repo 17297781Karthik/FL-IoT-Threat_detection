@@ -45,3 +45,7 @@ python-dotenv>=1.0.0
 
 # Optional: For advanced data analysis
 plotly>=5.0.0  # Interactive plotting (if needed)
+
+# Backend API Server
+Flask>=2.3.0
+Flask-CORS>=4.0.0

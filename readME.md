@@ -14,7 +14,13 @@ FL-IoT-Threat Detection/
 │   ├── server.py                    # Federated learning server (Flower)
 │   ├── client1.py                   # FL client for device 1
 │   ├── client2.py                   # FL client for device 2
-│   └── model.py                     # Neural network architecture
+│   ├── model.py                     # Neural network architecture
+│   └── api_server.py                # REST API backend for dashboard
+├── Frontend Dashboard
+│   └── frontend/                    # Vue.js + TypeScript dashboard
+│       ├── src/views/               # Dashboard pages
+│       ├── src/services/            # API integration
+│       └── src/components/          # Reusable UI components
 ├── Real-time Detection
 │   └── RealTimeService/
 │       ├── realtime_pipeline.py     # Real-time threat detection pipeline
@@ -36,6 +42,14 @@ FL-IoT-Threat Detection/
 ```
 
 ## Features
+
+### **Web Dashboard**
+- **Real-time Monitoring**: Live dashboard with system metrics and status
+- **Model Management**: Track training progress and model versions
+- **Metrics Visualization**: Charts and graphs for performance analysis
+- **Event Timeline**: Comprehensive system event tracking
+- **Logs Viewer**: Filterable logs with error/warn/info levels
+- **Configuration UI**: Manage system settings through web interface
 
 ### **Federated Learning**
 - **Privacy-Preserving**: Train models without sharing raw data
@@ -68,7 +82,36 @@ python --version
 pip install -r requirements.txt
 ```
 
-### 1. **Federated Learning Setup**
+### 1. **Web Dashboard**
+
+**Install frontend dependencies:**
+```bash
+cd frontend
+npm install
+```
+
+**Start the API server:**
+```bash
+# From project root
+pip install Flask Flask-CORS
+python api_server.py
+```
+
+**Start the dashboard (development):**
+```bash
+cd frontend
+npm run dev
+# Access at http://localhost:5173
+```
+
+**Build for production:**
+```bash
+cd frontend
+npm run build
+# Serves at http://localhost:5000 via api_server.py
+```
+
+### 2. **Federated Learning Setup**
 
 **Start the FL Server:**
 ```bash
@@ -84,7 +127,7 @@ python client1.py
 python client2.py
 ```
 
-### 2. **Real-time Threat Detection**
+### 3. **Real-time Threat Detection**
 
 **Setup the pipeline:**
 ```bash
@@ -97,7 +140,7 @@ python setup.py
 python monitor.py --pcap-dir /path/to/pcap/files
 ```
 
-### 3. **Data Analysis**
+### 4. **Data Analysis**
 
 **Explore the Jupyter notebooks:**
 ```bash
