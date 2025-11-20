@@ -14,8 +14,8 @@
       <div class="config-header">
         <p>Manage system configuration settings</p>
         <div class="button-group">
-          <button @click="loadConfig" class="secondary">🔄 Refresh</button>
-          <button @click="saveConfig" :disabled="!hasChanges">💾 Save Changes</button>
+          <button @click="loadConfig" class="secondary">Refresh</button>
+          <button @click="saveConfig" :disabled="!hasChanges">Save Changes</button>
         </div>
       </div>
       
@@ -26,7 +26,7 @@
       <!-- Paths Configuration -->
       <div class="card config-section">
         <div class="card-header">
-          <h2 class="card-title">📁 Paths</h2>
+          <h2 class="card-title">Paths</h2>
         </div>
         <div class="config-grid">
           <div class="config-field">
@@ -51,7 +51,7 @@
       <!-- Model Configuration -->
       <div class="card config-section">
         <div class="card-header">
-          <h2 class="card-title">🤖 Model Settings</h2>
+          <h2 class="card-title">Model Settings</h2>
         </div>
         <div class="config-grid">
           <div class="config-field">
@@ -78,7 +78,7 @@
       <!-- Processing Configuration -->
       <div class="card config-section">
         <div class="card-header">
-          <h2 class="card-title">⚙️ Processing Settings</h2>
+          <h2 class="card-title">Processing Settings</h2>
         </div>
         <div class="config-grid">
           <div class="config-field">
@@ -99,7 +99,7 @@
       <!-- Feature Extraction Configuration -->
       <div class="card config-section">
         <div class="card-header">
-          <h2 class="card-title">🔍 Feature Extraction</h2>
+          <h2 class="card-title">Feature Extraction</h2>
         </div>
         <div class="config-grid">
           <div class="config-field">
@@ -120,7 +120,7 @@
       <!-- Logging Configuration -->
       <div class="card config-section">
         <div class="card-header">
-          <h2 class="card-title">📝 Logging Settings</h2>
+          <h2 class="card-title">Logging Settings</h2>
         </div>
         <div class="config-grid">
           <div class="config-field">

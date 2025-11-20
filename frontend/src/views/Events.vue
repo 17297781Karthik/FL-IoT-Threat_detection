@@ -21,7 +21,7 @@
             <option value="detection">Detection</option>
             <option value="system">System</option>
           </select>
-          <button @click="loadEvents">🔄 Refresh</button>
+          <button @click="loadEvents">Refresh</button>
         </div>
       </div>
       

@@ -40,7 +40,7 @@
           </select>
         </div>
         
-        <button @click="loadLogs" class="refresh-btn">🔄 Refresh</button>
+        <button @click="loadLogs" class="refresh-btn">Refresh</button>
       </div>
       
       <div class="card">

@@ -14,27 +14,23 @@
       <!-- Stats Grid -->
       <div class="grid grid-cols-4" style="margin-bottom: 2rem;">
         <div class="stat-card card">
-          <div class="stat-icon">📦</div>
-          <div class="stat-value">{{ stats?.models.total || 0 }}</div>
           <div class="stat-label">Total Models</div>
+          <div class="stat-value">{{ stats?.models.total || 0 }}</div>
         </div>
         
         <div class="stat-card card">
-          <div class="stat-icon">🔄</div>
-          <div class="stat-value">{{ stats?.training.total_rounds || 0 }}</div>
           <div class="stat-label">Training Rounds</div>
+          <div class="stat-value">{{ stats?.training.total_rounds || 0 }}</div>
         </div>
         
         <div class="stat-card card">
-          <div class="stat-icon">🔍</div>
-          <div class="stat-value">{{ stats?.detection.total_processed || 0 }}</div>
           <div class="stat-label">Files Processed</div>
+          <div class="stat-value">{{ stats?.detection.total_processed || 0 }}</div>
         </div>
         
         <div class="stat-card card">
-          <div class="stat-icon">⚠️</div>
-          <div class="stat-value">{{ stats?.detection.threats_detected || 0 }}</div>
           <div class="stat-label">Threats Detected</div>
+          <div class="stat-value">{{ stats?.detection.threats_detected || 0 }}</div>
         </div>
       </div>
       
@@ -226,21 +222,17 @@ onMounted(() => {
   transform: translateY(-4px);
 }
 
-.stat-icon {
-  font-size: 2.5rem;
+.stat-label {
+  color: #9ca3af;
+  font-size: 0.875rem;
   margin-bottom: 0.5rem;
+  font-weight: 500;
 }
 
 .stat-value {
   font-size: 2rem;
   font-weight: 700;
   color: #3b82f6;
-  margin-bottom: 0.25rem;
-}
-
-.stat-label {
-  color: #9ca3af;
-  font-size: 0.875rem;
 }
 
 .model-info,

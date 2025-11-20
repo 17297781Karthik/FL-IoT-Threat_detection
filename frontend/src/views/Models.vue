@@ -13,7 +13,7 @@
     <div v-else>
       <div class="models-header">
         <p class="models-count">Total Models: <strong>{{ models.length }}</strong></p>
-        <button @click="loadModels">🔄 Refresh</button>
+        <button @click="loadModels">Refresh</button>
       </div>
       
       <div v-if="models.length" class="models-grid">
